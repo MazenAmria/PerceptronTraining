@@ -72,7 +72,8 @@ fill:
   # $a0 = address of the matrix
   # $a1 = desired value
 
-  move $a2, $a1
+  move $a3, $a1
+  li $a2, 1
 
   # save the pointer to the matrix
   move $t0, $a0
@@ -92,8 +93,107 @@ fill:
   multu $t1, $t2
   mflo $t1
 
-  # clculate the end address
+  # calculate the end address
   addu $a1, $a0, $t1 
+
+  # push $ra
+  addiu $sp, $sp, -4
+  sw $ra, 0($sp)
+
+  # memset
+  jal memset
+
+  # pop $ra
+  lw $ra, 0($sp)
+  addiu $sp, $sp, 4
+
+  jr $ra
+
+.globl fill_row
+
+fill_row:
+  # fill a row in matrix with specific value
+  # Parameters:
+  # $a0 = address of the matrix
+  # $a1 = row number (zero indexing)
+  # $a2 = desired value
+
+  move $a3, $a2
+  li $a2, 1 # row is contiguous
+
+  # save the pointer to the matrix
+  move $t0, $a0
+
+  # calculate the begin address
+  addiu $a0, $a0, 8
+
+  lw $t1, 4($t0) # number of columns
+  multu $t1, $a1 # number of entries before the desired row
+  mflo $t1
+
+  li $t2, 4
+  multu $t1, $t2 # number of bytes before desired row
+  mflo $t1 
+
+  addu $a0, $a0, $t1 # begin address
+
+  # calculate the end address
+  lw $t1, 4($t0) # number of columns
+  multu $t1, $t2 # number of bytes in a single row
+  mflo $t1
+  
+  addu $a1, $a0, $t1 # end address
+
+  # push $ra
+  addiu $sp, $sp, -4
+  sw $ra, 0($sp)
+
+  # memset
+  jal memset
+
+  # pop $ra
+  lw $ra, 0($sp)
+  addiu $sp, $sp, 4
+
+  jr $ra
+
+.globl fill_col
+
+fill_col:
+  # fill a column in matrix with specific value
+  # Parameters:
+  # $a0 = address of the matrix
+  # $a1 = col number (zero indexing)
+  # $a2 = desired value
+
+  move $a3, $a2
+
+  # save the pointer to the matrix
+  move $t0, $a0
+
+  # calculate the begin address
+  addiu $a0, $a0, 8
+  
+  move $t1, $a1
+  li $t2, 4
+  multu $t1, $t2
+  mflo $t1
+
+  addu $a0, $a0, $t1 # begin address
+
+  lw $a2, 4($t0) # number of columns (step size)
+
+  # calculate the end address
+  lw $t1, 4($t0) # number of columns
+  lw $t2, 0($t0) # number of rows
+  multu $t1, $t2 # addressing range in single column
+  mflo $t1
+
+  li $t2, 4
+  multu $t1, $t2 # number of bytes before end
+  mflo $t1
+
+  addu $a1, $a0, $t1 # end address
 
   # push $ra
   addiu $sp, $sp, -4
