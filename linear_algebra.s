@@ -18,9 +18,7 @@ allocate_matrix:
   mflo $t0
 
   # calculate the total number of bytes
-  addiu $t1, $t1, 4
-  multu $t0, $t1
-  mflo $t0
+  sll $t0, $t0, 2
 
   # save the value of $a0
   move $t1, $a0
@@ -39,7 +37,7 @@ allocate_matrix:
 
   jr $ra
 
-.globl allocate_vector
+.globl allocate_matrix
 
 allocate_vector:
   # allocates a vector in the memory
@@ -49,17 +47,87 @@ allocate_vector:
   # $v0 = address of the allocated vector
   
   # vector representaion in memory:
-  # a single column matrix
+  # 1st word: size of the vector
+  # entries
 
-  # set the 2nd dim = 1
-  addiu $a1, $zero, 1
+  # calculate the total number of bytes
+  sll $t0, $a0, 2
+
+  # save the value of $a0
+  move $t1, $a0
+
+  # add headers (1 word) and pass the size
+  # in bytes to sbrk system call
+  addiu $a0, $t0, 4
+
+  # allocate the vector
+  li $v0, 9
+  syscall
+
+  # store the headers
+  sw $t1, 0($v0)
+
+  jr $ra
+
+.globl copy_matrix
+
+copy_matrix:
+  # copies a matrix from source to destination
+  # Parameters:
+  # $a0 = destination matrix address
+  # $a1 = source matrix address
+
+  # check if the size matches
+  lw $t0, 0($a0)
+  lw $t1, 4($a0)
+  
+  # total words in destination
+  multu $t0, $t1
+  mflo $t0
+  
+  lw $t1, 0($a1)
+  lw $t2, 4($a1)
+  
+  # total words in source
+  multu $t1, $t2
+  mflo $t1
+
+  beq $t0, $t1, copying_matrix
+
+  # unmatched size (exit)
+  li $v1, -1
+  jal exit
+
+  copying_matrix:
 
   # push $ra
   addiu $sp, $sp, -4
   sw $ra, 0($sp)
 
-  # allocate a matrix
-  jal allocate_matrix
+  # pass arguments
+  addiu $sp, $sp, -24       # 6 arguments
+  
+  addiu $a0, $a0, 8
+  sw $a0, 0($sp)            # dest.begin
+
+  sll $t0, $t0, 2
+  addu $a0, $a0, $t0
+  sw $a0, 4($sp)            # dest.end
+
+  li $a0, 1
+  sw $a0, 8($sp)            # dest.step
+
+  addiu $a1, $a1, 8
+  sw $a1, 12($sp)           # src.begin
+
+  addu $a1, $a1, $t0
+  sw $a1, 16($sp)           # src.end
+
+  li $a1, 1
+  sw $a1, 20($sp)           # src.step
+
+  # copy
+  jal copy
 
   # pop $ra
   lw $ra, 0($sp)
@@ -67,42 +135,155 @@ allocate_vector:
 
   jr $ra
 
-.globl fill
+.globl copy_row
 
-fill:
-  # fill a matrix (or vector) 
-  # with specific value
+copy_row:
+  # copies a vector to a row in matrix
   # Parameters:
-  # $a0 = address of the matrix
-  # $a1 = desired value
+  # $a0 = destination matrix address
+  # $a1 = row number (zero indexed)
+  # $a2 = source vector address
 
-  move $a3, $a1
-  li $a2, 1
+  # check if the size matches
+  lw $t0, 4($a0)
+  lw $t1, 0($a2)
 
-  # save the pointer to the matrix
-  move $t0, $a0
+  beq $t0, $t1, copying_row
 
-  # calculate the begin address
-  addiu $a0, $a0, 8
+  # unmatched size (exit)
+  li $v1, -1
+  jal exit
 
-  # calculate the size of the matrix (in bytes)
-  lw $t1, 0($t0)
-  lw $t2, 4($t0)
-
-  multu $t1, $t2
-  mflo $t1
-  
-  li $t2, 4
-
-  multu $t1, $t2
-  mflo $t1
-
-  # calculate the end address
-  addu $a1, $a0, $t1 
+  copying_row:
 
   # push $ra
   addiu $sp, $sp, -4
   sw $ra, 0($sp)
+
+  # pass arguments
+  addiu $sp, $sp, -24       # 6 arguments
+  
+  multu $t0, $a1
+  mflo $a1
+  sll $a1, $a1, 2
+  
+  addiu $a0, $a0, 8
+  addu $a0, $a0, $a1
+  sw $a0, 0($sp)            # dest.begin
+
+  sll $t0, $t0, 2
+  addu $a0, $a0, $t0
+  sw $a0, 4($sp)            # dest.end
+
+  li $a0, 1
+  sw $a0, 8($sp)            # dest.step
+
+  addiu $a2, $a2, 4
+  sw $a2, 12($sp)           # src.begin
+
+  addu $a2, $a2, $t0
+  sw $a2, 16($sp)           # src.end
+
+  li $a2, 1
+  sw $a2, 20($sp)           # src.step
+
+  # copy
+  jal copy
+
+  # pop $ra
+  lw $ra, 0($sp)
+  addiu $sp, $sp, 4
+
+  jr $ra
+
+.globl copy_col
+
+copy_col:
+  # copies a vector to a column in matrix
+  # Parameters:
+  # $a0 = destination matrix address
+  # $a1 = col number (zero indexed)
+  # $a2 = source vector address
+
+  # check if the size matches
+  lw $t0, 0($a0)
+  lw $t1, 0($a2)
+
+  beq $t0, $t1, copying_col
+
+  # unmatched size (exit)
+  li $v1, -1
+  jal exit
+
+  copying_col:
+
+  # push $ra
+  addiu $sp, $sp, -4
+  sw $ra, 0($sp)
+
+  # pass arguments
+  addiu $sp, $sp, -24       # 6 arguments
+  
+  sll $a1, $a1, 2
+  
+  addiu $a0, $a0, 8
+  addu $a0, $a0, $a1
+  sw $a0, 0($sp)            # dest.begin
+
+  lw $t1, 4($a0)
+  multu $t0, $t1
+  mflo $t2
+  sll $t2, $t2, 2
+
+  addu $a0, $a0, $t2
+  sw $a0, 4($sp)            # dest.end
+
+  sw $t1, 8($sp)            # dest.step
+
+  addiu $a2, $a2, 4
+  sw $a2, 12($sp)           # src.begin
+
+  addu $a2, $a2, $t0
+  sw $a2, 16($sp)           # src.end
+
+  li $a2, 1
+  sw $a2, 20($sp)           # src.step
+
+  # copy
+  jal copy
+
+  # pop $ra
+  lw $ra, 0($sp)
+  addiu $sp, $sp, 4
+
+  jr $ra
+
+.globl fill_matrix
+
+fill_matrix:
+  # fills a matrix with specific value
+  # Parameters:
+  # $a0 = address of the matrix
+  # $a1 = desired value
+
+  # push $ra
+  addiu $sp, $sp, -4
+  sw $ra, 0($sp)
+
+  move $a3, $a1             # value
+
+  lw $t0, 0($a0)
+  lw $t1, 4($a0)
+
+  addiu $a0, $a0, 8         # dest.begin
+
+  multu $t0, $t1
+  mflo $t2
+  sll $t2, $t2, 2
+
+  addu $a1, $a0, $t2        # dest.end
+
+  move $a2, 1               # dest.step
 
   # memset
   jal memset
@@ -116,41 +297,31 @@ fill:
 .globl fill_row
 
 fill_row:
-  # fill a row in matrix with specific value
+  # fills a row in matrix with specific value
   # Parameters:
   # $a0 = address of the matrix
   # $a1 = row number (zero indexing)
   # $a2 = desired value
 
-  move $a3, $a2
-  li $a2, 1 # row is contiguous
-
-  # save the pointer to the matrix
-  move $t0, $a0
-
-  # calculate the begin address
-  addiu $a0, $a0, 8
-
-  lw $t1, 4($t0) # number of columns
-  multu $t1, $a1 # number of entries before the desired row
-  mflo $t1
-
-  li $t2, 4
-  multu $t1, $t2 # number of bytes before desired row
-  mflo $t1 
-
-  addu $a0, $a0, $t1 # begin address
-
-  # calculate the end address
-  lw $t1, 4($t0) # number of columns
-  multu $t1, $t2 # number of bytes in a single row
-  mflo $t1
-  
-  addu $a1, $a0, $t1 # end address
-
   # push $ra
   addiu $sp, $sp, -4
   sw $ra, 0($sp)
+
+  move $a3, $a2             # value
+
+  lw $t0, 0($a0)
+  lw $t1, 4($a0)
+
+  multu $a1, $t1
+  mflo $t2
+  sll $t2, $t2, 2
+
+  addiu $a0, $a0, 8
+  addu $a0, $a0, $t2        # dest.begin
+
+  addu $a1, $a0, $t1        # dest.end
+
+  move $a2, 1               # dest.step
 
   # memset
   jal memset
@@ -164,44 +335,31 @@ fill_row:
 .globl fill_col
 
 fill_col:
-  # fill a column in matrix with specific value
+  # fills a column in matrix with specific value
   # Parameters:
   # $a0 = address of the matrix
   # $a1 = col number (zero indexing)
   # $a2 = desired value
 
-  move $a3, $a2
-
-  # save the pointer to the matrix
-  move $t0, $a0
-
-  # calculate the begin address
-  addiu $a0, $a0, 8
-  
-  move $t1, $a1
-  li $t2, 4
-  multu $t1, $t2
-  mflo $t1
-
-  addu $a0, $a0, $t1 # begin address
-
-  lw $a2, 4($t0) # number of columns (step size)
-
-  # calculate the end address
-  lw $t1, 4($t0) # number of columns
-  lw $t2, 0($t0) # number of rows
-  multu $t1, $t2 # addressing range in single column
-  mflo $t1
-
-  li $t2, 4
-  multu $t1, $t2 # number of bytes before end
-  mflo $t1
-
-  addu $a1, $a0, $t1 # end address
-
   # push $ra
   addiu $sp, $sp, -4
   sw $ra, 0($sp)
+
+  move $a3, $a2             # value
+
+  lw $t0, 0($a0)
+  lw $t1, 4($a0)
+
+  addiu $a0, $a0, 8
+  sll $a1, $a1, 2
+  addu $a0, $a0, $a1        # dest.begin
+
+  multu $t0, $t1
+  mflo $t2
+  sll $t2, $t2, 2
+  addu $a1, $a0, $t2        # dest.end
+
+  move $a2, $t1             # dest.step
 
   # memset
   jal memset
@@ -211,6 +369,138 @@ fill_col:
   addiu $sp, $sp, 4
 
   jr $ra
+
+.globl extract_row
+
+extract_row:
+  # Extracts a row from source matrix to a destination vector
+  # Parameters:
+  # $a0 = destination vector address
+  # $a1 = source matrix address
+  # $a2 = row number (zero indexed)
+
+  # check if the size matches
+  lw $t0, 0($a0)
+  lw $t1, 4($a1)
+
+  beq $t0, $t1, extracting_row
+
+  # unmatched size (exit)
+  li $v1, -1
+  jal exit
+
+  extracting_row:
+
+  # push $ra
+  addiu $sp, $sp, -4
+  sw $ra, 0($sp)
+
+  # pass arguments
+  addiu $sp, $sp, -24       # 6 arguments
+  
+  addiu $a0, $a0, 4
+  sw $a0, 0($sp)            # dest.begin
+
+  addu $a0, $a0, $t0
+  sw $a0, 4($sp)            # dest.end
+
+  li $a0, 1
+  sw $a0, 8($sp)            # dest.step
+
+  multu $t1, $a2
+  mflo $a2
+  sll $a2, $a2, 2
+  
+  addiu $a1, $a1, 8
+  addu $a1, $a1, $a2
+  sw $a1, 0($sp)            # src.begin
+
+  sll $t1, $t1, 2
+  addu $a1, $a1, $t1
+  sw $a1, 4($sp)            # src.end
+
+  li $a1, 1
+  sw $a1, 8($sp)            # src.step
+
+  # copy
+  jal copy
+
+  # pop $ra
+  lw $ra, 0($sp)
+  addiu $sp, $sp, 4
+
+  jr $ra
+
+.globl extract_col
+
+extract_col:
+  # Extracts a column from source matrix to a destination vector
+  # Parameters:
+  # $a0 = destination vector address
+  # $a1 = source matrix address
+  # $a2 = col number (zero indexed)
+
+  # check if the size matches
+  lw $t0, 0($a0)
+  lw $t1, 0($a1)
+
+  beq $t0, $t1, extracting_col
+
+  # unmatched size (exit)
+  li $v1, -1
+  jal exit
+
+  extracting_col:
+
+  # push $ra
+  addiu $sp, $sp, -4
+  sw $ra, 0($sp)
+
+  # pass arguments
+  addiu $sp, $sp, -24       # 6 arguments
+  
+  addiu $a0, $a0, 4
+  sw $a0, 0($sp)            # dest.begin
+
+  addu $a0, $a0, $t0
+  sw $a0, 4($sp)            # dest.end
+
+  li $a0, 1
+  sw $a0, 8($sp)            # dest.step
+  
+  addiu $a1, $a1, 8
+  sll $a2, $a2, 2
+  addu $a1, $a1, $a2
+  sw $a1, 12($sp)           # src.begin
+
+  lw $t2, 4($a0)
+  multu $t1, $t2
+  mflo $t3
+  sll $t3, $t3, 2
+  addu $a1, $a1, $t3
+  sw $a1, 16($sp)           # src.end
+
+  sw $t2, 20($sp)           # src.step
+
+  # copy
+  jal copy
+
+  # pop $ra
+  lw $ra, 0($sp)
+  addiu $sp, $sp, 4
+
+  jr $ra
+
+# add_vector
+# add_matrix
+# sub_vector
+# sub_matrix
+# scale_vector
+# scale_matrix
+# transpose
+# vector_dot
+# vector_transform
+# matrix_dot
 
 .globl matrix_mult
 
