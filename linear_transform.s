@@ -1,6 +1,6 @@
-  .globl	transform
-transform:
-  # Transforms a vector (Change Basis)
+  .globl	linear_transform
+linear_transform:
+  # Linear Transformation of a vector (Change Basis)
   # Wij * Xj = Yi
   # $a0: address of the input vector (j size)
   # $a1: address of the change of basis matrix (ixj size)
@@ -16,9 +16,9 @@ transform:
 	sw $6, 20($fp)	  # save Y
 	sw $7, 24($fp)	  # save i
 	sw $0, 0($fp)	    # unsigned int _i = 0
-	j transform_i_check
+	j linear_transform_i_check
 
-transform_i_body:
+linear_transform_i_body:
 	lw $2, 0($fp)     # load _i
 	sll $2, $2, 2     # convert to byte offset
 	lw $3, 20($fp)    # load Y
@@ -26,9 +26,9 @@ transform_i_body:
 	sw $0, 0($2)      # Y[_i] = 0
 
 	sw $0, 4($fp)     # unsigned int _j = 0
-	j	transform_j_check
+	j	linear_transform_j_check
 
-transform_j_body:
+linear_transform_j_body:
 	lw $2, 0($fp)		  # load _i
 	sll $2, $2, 2	    # convert to byte offset
 	lw $3, 20($fp)		# load Y
@@ -65,21 +65,21 @@ transform_j_body:
 	addiu $2, $2, 1
 	sw $2, 4($fp)	    # _j++
 
-transform_j_check:
+linear_transform_j_check:
   lw $3, 4($fp)		      # load _j
 	lw $2, 28($fp)		    # load j
 	sltu $2, $3, $2	      # if _j < j
-	bne $2, $0, transform_j_body  # continue
+	bne $2, $0, linear_transform_j_body  # continue
   # else 
 	lw $2, 0($fp)
 	addiu $2, $2, 1
 	sw $2, 0($fp)	        # _i++
 
-transform_i_check:
+linear_transform_i_check:
 	lw $3, 0($fp)		      # load _i
 	lw $2, 24($fp)		    # load i
 	sltu $2, $3, $2	      # if _i < i
-	bne $2, $0, transform_i_body  # continue
+	bne $2, $0, linear_transform_i_body  # continue
   # else
 	move $sp, $fp
 	lw $fp, 8($sp)
