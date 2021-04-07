@@ -83,5 +83,5 @@ transform_i_check:
   # else
 	move $sp, $fp
 	lw $fp, 8($sp)
-	addiu $sp, $sp, 32	  # free the stack
+	addiu $sp, $sp, 28	  # free the stack
 	jr $31                # return
