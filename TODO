@@ -3,8 +3,8 @@ print_matrix
 ##################################
   ##  copy_vector
   ##  copy_matrix
-fill_vector
-fill_matrix
+  ##  fill_vector
+  ##  fill_matrix
 vector_cross (returns a matrix Mij = Ai * Bj)
 ###################################
 one_hot_encoding (int returns vector, only the corresponding element = 1 and the rest are zeros)

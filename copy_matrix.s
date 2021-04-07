@@ -26,9 +26,9 @@ copy_matrix_i_body:
 	lw $2, 0($fp)           # load _i
 	sll $2, $2, 2           # convert to bytes offset
 	lw $3, 16($fp)          # load src
-	addu $2, $3, $2         # calculate the address
+	addu $4, $3, $2         # pass src[_i]
 
-  lw $3, 24($fp)          # load j
+  lw $5, 24($fp)          # pass j
   jal copy_vector         # $2 = copy_vector(src[_i], j)
 
 	lw $3, 0($fp)           # load _i
