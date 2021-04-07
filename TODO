@@ -5,7 +5,7 @@ print_matrix
   ##  copy_matrix
   ##  fill_vector
   ##  fill_matrix
-vector_cross (returns a matrix Mij = Ai * Bj)
+  ##  vector_cross (returns a matrix Mij = Ai * Bj)
 ###################################
 one_hot_encoding (int returns vector, only the corresponding element = 1 and the rest are zeros)
 hard_limiter (activation function for single neuron: if negative it returns zero otherwise it returns one)

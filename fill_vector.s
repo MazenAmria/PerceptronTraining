@@ -1,5 +1,10 @@
 	.globl fill_vector
 fill_vector:
+  # Fills a vector with a value
+  # $a0: address of the destination vector (i size)
+  # $a1: i (4-bytes integer)
+  # $a2: value (4-bytes float)
+
 	addiu $sp, $sp, -20
 	sw $fp, 4($sp)
 	move $fp, $sp

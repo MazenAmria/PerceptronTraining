@@ -1,6 +1,12 @@
 	.globl fill_matrix
 fill_matrix:
-addiu $sp, $sp, -24
+  # Fills a matrix with a value
+  # $a0: address of the destination matrix (ixj size)
+  # $a1: i (4-bytes integer)
+  # $a2: j (4-bytes integer)
+  # $a3: value (4-bytes float)
+
+  addiu $sp, $sp, -24
 	sw $fp, 4($sp)
 	move $fp, $sp
 
