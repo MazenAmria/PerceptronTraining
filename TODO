@@ -5,6 +5,8 @@ copy_vector
 copy_matrix
 vector_cross (returns a matrix Mij = Ai * Bj)
 ###################################
+one_hot_encoding
 hard_limiter (activation function for single neuron)
 argmax (activation function for multiple neurons)
+transform
 fit
