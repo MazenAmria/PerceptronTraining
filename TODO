@@ -7,7 +7,7 @@ print_matrix
   ##  fill_matrix
   ##  vector_cross (returns a matrix Mij = Ai * Bj)
 ###################################
-one_hot_encoding (int returns vector, only the corresponding element = 1 and the rest are zeros)
+  ##  one_hot_encoding (int returns vector, only the corresponding element = 1 and the rest are zeros)
 hard_limiter (activation function for single neuron: if negative it returns zero otherwise it returns one)
 argmax (activation function for multiple neurons: only the maximum output is considered to be 1)
 transform (see Algo)
