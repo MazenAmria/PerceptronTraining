@@ -27,10 +27,12 @@ In the fit:
   Allocate dT_k as the change in thresholds
 
   iterate with i:
+    print_vector(X_i)
     transform X_i
     E = Yd_i
     E -= Y
     print_vector(Y)
+    print_vector(Yd_i)
     print_vector(E)
 
     dC = vector_cross(E, X)
