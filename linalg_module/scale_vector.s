@@ -20,16 +20,16 @@ scale_vector_i_body:
 	sll	$2, $2, 2	      # convert to bytes offset
 	lw	$3, 8($fp)		  # load A
 	addu $2, $3, $2	    # calculate the address
-	lwc1 $f2, 0($2)	    # load A[_i]
+	l.s $f2, 0($2)	    # load A[_i]
 
-	lwc1 $f0, 12($fp)	  # load K
+	l.s $f0, 12($fp)	  # load K
 
 	lw	$2, 0($fp)		  # load _i
 	sll	$2, $2, 2	      # convert to bytes offset
 	lw	$3, 8($fp)		  # load A
 	addu $2, $3, $2	    # calculate the address
 	mul.s $f0, $f2, $f0	# T = K * A[_i]
-	swc1 $f0, 0($2)	    # A[_i] = T
+	s.s $f0, 0($2)	    # A[_i] = T
 
 	lw $2, 0($fp)
 	addiu $2, $2, 1

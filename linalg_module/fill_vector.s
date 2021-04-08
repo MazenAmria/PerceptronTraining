@@ -21,8 +21,8 @@ fill_vector_i_body:
 	sll $2, $2, 2           # convert to bytes offset
 	lw $3, 8($fp)           # load vec     
 	addu $2, $3, $2         # calculate the address  
-	lwc1 $f0, 16($fp)       # T = val
-	swc1 $f0, 0($2)         # vec[_i] = val
+	l.s $f0, 16($fp)       # T = val
+	s.s $f0, 0($2)         # vec[_i] = val
 	
   lw $2, 0($fp)
 	addiu $2, $2, 1

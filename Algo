@@ -15,8 +15,7 @@ In the main:
     X_i = tuple[1:j]
     Y_i = one_hot_encoding(tuple[j+1])
 
-  iterate with ep:
-    call fit
+  call fit
 
 In the fit:
 
@@ -26,31 +25,32 @@ In the fit:
   Allocate dC_kj as the real change in weights 
   Allocate dT_k as the change in thresholds
 
-  iterate with i:
-    debug_vector(X_i)
-    transform(X_i)
-    E = Yd_i
-    E -= Y
-    debug_vector(Y)
-    debug_vector(Yd_i)
-    debug_vector(E)
+  iterate with ep:
+    iterate with i:
+      debug_vector(X_i)
+      transform(X_i)
+      E = Yd_i
+      E -= Y
+      debug_vector(Y)
+      debug_vector(Yd_i)
+      debug_vector(E)
 
-    dC = vector_cross(E, X)
-    dC = scale_matrix(dC, LR)
-    dW = scale_matrix(dW, B)
-    dW += dC
-    W += dW
+      dC = vector_cross(E, X)
+      dC = scale_matrix(dC, LR)
+      dW = scale_matrix(dW, B)
+      dW += dC
+      W += dW
 
-    debug_matrix(dW)
-    debug_matrix(W)
+      debug_matrix(dW)
+      debug_matrix(W)
 
-    dT = scale_vector(dT, B)
-    E = scale_vector(E, LR)
-    dT += E
-    T += dT
+      dT = scale_vector(dT, B)
+      E = scale_vector(E, LR)
+      dT += E
+      T += dT
 
-    debug_vector(dT)
-    debug_vector(T)
+      debug_vector(dT)
+      debug_vector(T)
 
 In the transform:
 

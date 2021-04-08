@@ -26,10 +26,8 @@ hard_limiter_i_body:
 	sll $2, $2, 2           # convert to bytes address
 	lw $3, 8($fp)           # load vec
 	addu $2, $3, $2         # caldulate the address
-	addiu $4, $0, 1         # $4 = int(1)
-  mtc1 $4, $f0
-  cvt.s.w $f0, $f0        # $f0 = float(1.0)
-  swc1 $f0, 0($2)         # dest[y] = 1.0
+	l.s $f0, ONE
+  s.s $f0, 0($2)       # dest[y] = 1.0
 	j hard_limiter_i_increment
 
 hard_limiter_else:

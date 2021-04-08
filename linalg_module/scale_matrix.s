@@ -22,7 +22,7 @@ scale_matrix_i_body:
 	j	scale_matrix_j_check
 
 scale_matrix_j_body:
-  lwc1 $f2, 0($2)   # load K
+  l.s $f2, 0($2)    # load K
 
   lw $2, 0($fp)		  # load _i
 	sll $2, $2, 2	    # convert to byte offset
@@ -32,10 +32,10 @@ scale_matrix_j_body:
   lw $2, 4($fp)     # load _j
   sll $2, $2, 2	    # convert to byte offset
   addu $2, $3, $2	  # calculate the address
-  lwc1 $f0, 0($2)   # load A[_i][_j]
+  l.s $f0, 0($2)    # load A[_i][_j]
 
 	mul.s $f0, $f2, $f0	 # T = K * A[_i][_j]
-	swc1 $f0, 0($2)	  # A[_i][_j] = T
+	s.s $f0, 0($2)	  # A[_i][_j] = T
 
 	lw $2, 4($fp)
 	addiu $2, $2, 1

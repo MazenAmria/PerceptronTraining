@@ -1,6 +1,3 @@
-  ##  perceptron_module/argmax.s (activation function for multiple neurons: only the maximum output is considered to be 1)
-perceptron_module/fit.s (see Algo)
-
 input_module:
   read the parameters from the user (learning rate, momentum, number of epochs, initial weight, initial threshold)
   read from the file:
