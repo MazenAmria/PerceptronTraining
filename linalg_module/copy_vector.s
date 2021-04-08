@@ -6,48 +6,48 @@ copy_vector:
   # $a1: i (4-bytes integer)
 
 	addiu $sp, $sp, -24
-	sw $31, 12($sp)         # save $ra
+	sw $ra, 12($sp)         # save $ra
 	sw $fp, 8($sp)          # save $fp
 	move $fp, $sp
-	sw $4, 16($fp)          # save src
-	sw $5, 20($fp)          # save i
+	sw $a0, 16($fp)          # save src
+	sw $a1, 20($fp)          # save i
 
-	lw $4, 20($fp)          # pass i to allocate_vector
+	lw $a0, 20($fp)          # pass i to allocate_vector
   jal allocate_vector
   
-	sw $2, 4($fp)           # save dest
-	sw $0, 0($fp)           # unsigned int _i = 0
+	sw $v0, 4($fp)           # save dest
+	sw $zero, 0($fp)           # unsigned int _i = 0
 	
   j	copy_vector_i_check
 
 copy_vector_i_body:
-	lw $2, 0($fp)           # load _i
-	sll $2, $2, 2           # convert to bytes offset
-	lw $3, 16($fp)          # load src
-	addu $3, $3, $2         # calculate the address
+	lw $t0, 0($fp)           # load _i
+	sll $t0, $t0, 2           # convert to bytes offset
+	lw $t1, 16($fp)          # load src
+	addu $t1, $t1, $t0         # calculate the address
 
-	lw $2, 0($fp)           # load _i
-	sll $2, $2, 2           # convert to bytes offset
-	lw $4, 4($fp)           # load dest
-	addu $2, $4, $2         # calculate the address
+	lw $t0, 0($fp)           # load _i
+	sll $t0, $t0, 2           # convert to bytes offset
+	lw $t2, 4($fp)           # load dest
+	addu $t0, $t2, $t0         # calculate the address
 
-	lwc1 $f0, 0($3)         # T = src[_i]
-	swc1 $f0, 0($2)         # dest[_i] = T
+	lwc1 $f0, 0($t1)         # T = src[_i]
+	swc1 $f0, 0($t0)         # dest[_i] = T
 
-	lw $2, 0($fp)
-	addiu $2, $2, 1
-	sw $2, 0($fp)           # _i++
+	lw $t0, 0($fp)
+	addiu $t0, $t0, 1
+	sw $t0, 0($fp)           # _i++
 
 copy_vector_i_check:
-	lw $2, 20($fp)          # load i 
-	lw $3, 0($fp)           # load _i
-	sltu $2, $3, $2         # if _i < i
+	lw $t0, 20($fp)          # load i 
+	lw $t1, 0($fp)           # load _i
+	sltu $t0, $t1, $t0         # if _i < i
 
-	bne	$2, $0, copy_vector_i_body  # continue
+	bne	$t0, $zero, copy_vector_i_body  # continue
 
 	move $sp, $fp
-	lw $2, 4($fp)           # return dest
-  lw $31, 12($sp)         # pop $ra
+	lw $v0, 4($fp)           # return dest
+  lw $ra, 12($sp)         # pop $ra
 	lw $fp, 8($sp)          # pop $fp
 	addiu	$sp, $sp, 24      # free the stack
-	jr $31                  # return
+	jr $ra                  # return

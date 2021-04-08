@@ -9,43 +9,43 @@ sub_vector:
 	addiu	$sp, $sp, -20
 	sw $fp, 4($sp)
 	move $fp, $sp
-	sw $4, 8($fp)	      # save A
-	sw $5, 12($fp)	    # save B
-	sw $6, 16($fp)	    # save i
-	sw $0, 0($fp)	      # unsigned int _i = 0
+	sw $a0, 8($fp)	      # save A
+	sw $a1, 12($fp)	    # save B
+	sw $a2, 16($fp)	    # save i
+	sw $zero, 0($fp)	      # unsigned int _i = 0
 	j sub_vector_i_check
 
 sub_vector_i_body:
-	lw	$2, 0($fp)		  # load _i
-	sll	$2, $2, 2	      # convert to bytes offset
-	lw	$3, 8($fp)		  # load A
-	addu $2, $3, $2	    # calculate the address
-	lwc1 $f2, 0($2)	    # load A[_i]
+	lw	$t0, 0($fp)		  # load _i
+	sll	$t0, $t0, 2	      # convert to bytes offset
+	lw	$t1, 8($fp)		  # load A
+	addu $t0, $t1, $t0	    # calculate the address
+	lwc1 $f2, 0($t0)	    # load A[_i]
 
-	lw	$2, 0($fp)		  # load _i
-	sll	$2, $2, 2	      # convert to bytes offset
-	lw	$3, 12($fp)		  # load B
-	addu $2, $3, $2	    # calculate the address
-	lwc1 $f0, 0($2)	    # load B[_i]
+	lw	$t0, 0($fp)		  # load _i
+	sll	$t0, $t0, 2	      # convert to bytes offset
+	lw	$t1, 12($fp)		  # load B
+	addu $t0, $t1, $t0	    # calculate the address
+	lwc1 $f0, 0($t0)	    # load B[_i]
 
-	lw	$2, 0($fp)		  # load _i
-	sll	$2, $2, 2	      # convert to bytes offset
-	lw	$3, 8($fp)		  # load A
-	addu $2, $3, $2	    # calculate the address
+	lw	$t0, 0($fp)		  # load _i
+	sll	$t0, $t0, 2	      # convert to bytes offset
+	lw	$t1, 8($fp)		  # load A
+	addu $t0, $t1, $t0	    # calculate the address
 	sub.s $f0, $f2, $f0	# T = A[_i] - B[_i]
-	swc1 $f0, 0($2)	    # A[_i] = T
+	swc1 $f0, 0($t0)	    # A[_i] = T
 
-	lw $2, 0($fp)
-	addiu $2, $2, 1
-	sw $2, 0($fp)	      # _i++
+	lw $t0, 0($fp)
+	addiu $t0, $t0, 1
+	sw $t0, 0($fp)	      # _i++
 
 sub_vector_i_check:
-	lw $3, 4($fp)		    # load _i
-	lw $2, 16($fp)		  # load i
-	sltu $2, $3, $2	    # if _i < i
-	bne	$2, $0, sub_vector_i_body
+	lw $t1, 4($fp)		    # load _i
+	lw $t0, 16($fp)		  # load i
+	sltu $t0, $t1, $t0	    # if _i < i
+	bne	$t0, $zero, sub_vector_i_body
   # else
 	move $sp, $fp
 	lw $fp, 4($sp)
 	addiu	$sp, $sp, 20  # free the stack
-	jr  $31             # return
+	jr  $ra             # return

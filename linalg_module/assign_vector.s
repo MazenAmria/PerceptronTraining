@@ -8,38 +8,38 @@ assign_vector:
 	addiu $sp, $sp, -20
 	sw $fp, 4($sp)          # save $fp
 	move $fp, $sp
-	sw $4, 8($fp)           # save dest
-	sw $5, 12($fp)          # save src
-	sw $6, 16($fp)          # save i
-	sw $0, 0($fp)           # unsigned int _i = 0
+	sw $a0, 8($fp)           # save dest
+	sw $a1, 12($fp)          # save src
+	sw $a2, 16($fp)          # save i
+	sw $zero, 0($fp)           # unsigned int _i = 0
 	
   j	assign_vector_i_check
 
 assign_vector_i_body:
-	lw $2, 0($fp)           # load _i
-	sll $2, $2, 2           # convert to bytes offset
-	lw $3, 12($fp)          # load src
-	addu $3, $3, $2         # calculate the address
+	lw $t0, 0($fp)           # load _i
+	sll $t0, $t0, 2           # convert to bytes offset
+	lw $t1, 12($fp)          # load src
+	addu $t1, $t1, $t0         # calculate the address
 
-	lw $2, 0($fp)           # load _i
-	sll $2, $2, 2           # convert to bytes offset
-	lw $4, 8($fp)           # load dest
-	addu $2, $4, $2         # calculate the address
+	lw $t0, 0($fp)           # load _i
+	sll $t0, $t0, 2           # convert to bytes offset
+	lw $a0, 8($fp)           # load dest
+	addu $t0, $a0, $t0         # calculate the address
 
-	lwc1 $f0, 0($3)         # T = src[_i]
-	swc1 $f0, 0($2)         # dest[_i] = T
+	lwc1 $f0, 0($t1)         # T = src[_i]
+	swc1 $f0, 0($t0)         # dest[_i] = T
 
-	lw $2, 0($fp)
-	addiu $2, $2, 1
-	sw $2, 0($fp)           # _i++
+	lw $t0, 0($fp)
+	addiu $t0, $t0, 1
+	sw $t0, 0($fp)           # _i++
 
 assign_vector_i_check:
-	lw $2, 16($fp)          # load i 
-	lw $3, 0($fp)           # load _i
-	sltu $2, $3, $2         # if _i < i
-	bne	$2, $0, assign_vector_i_body  # continue
+	lw $t0, 16($fp)          # load i 
+	lw $t1, 0($fp)           # load _i
+	sltu $t0, $t1, $t0         # if _i < i
+	bne	$t0, $zero, assign_vector_i_body  # continue
   # else
 	move $sp, $fp
 	lw $fp, 4($sp)          # pop $fp
 	addiu	$sp, $sp, 20      # free the stack
-	jr $31                  # return
+	jr $ra                  # return
