@@ -1,6 +1,11 @@
 	.globl one_hot_encoding
 one_hot_encoding:
-	addiu $sp, $sp, -20
+  # Fills a vector with the one hot encoding of the class
+  # $a0 = class number (4-bytes unsigned integer)
+  # $a1 = destination vector (4-bytes address)
+  # $a2 = size of the vector (4-bytes unsigned integer)
+  
+  addiu $sp, $sp, -20
 	sw $31, 4($sp)        # save $ra
 	sw $fp, 0($sp)        # save $fp
 	move $fp, $sp       
