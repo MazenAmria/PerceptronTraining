@@ -1,2 +1,11 @@
-perceptron_module/argmax.s (activation function for multiple neurons: only the maximum output is considered to be 1)
+  ##  perceptron_module/argmax.s (activation function for multiple neurons: only the maximum output is considered to be 1)
 perceptron_module/fit.s (see Algo)
+
+input_module:
+  read the parameters from the user (learning rate, momentum, number of epochs, initial weight, initial threshold)
+  read from the file:
+    i,j,k (number of instances, number of features, number of classes) all are integers
+    F0,F1,F2,...,ClassNo (read a line, first j numbers are floats insert them as row in the X matrix,
+    last number is integer convert it using one_hot_encoding to a row in Y matrix)
+    
+file is CSV
