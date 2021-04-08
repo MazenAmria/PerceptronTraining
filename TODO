@@ -6,3 +6,18 @@ input_module:
     last number is integer convert it using one_hot_encoding to a row in Y matrix)
     
 file is CSV
+
+At main:
+  add messages:
+    PRE_ACTV: "Before Applying the activation function\n"
+    INPUT: "The input vector\n"
+    POST_ACTV: "After Applying the activation function\n"
+    DESIRED: "The desired output\n"
+    ERROR: "The error in the prediction\n"
+    WABS_CHANGE: "The absolute change in the weights\n"
+    WCHANGE: "The change in the weights\n"
+    WEIGHTS_BEFORE: "The weights at the beginning of the iteration\n"
+    WEIGHTS_AFTER: "The weights at the end of the iteration\n"
+    TH_CHANGE: "Change in thresholds\n"
+    THRESHOLDS_BEFORE: "The thresholds at the beginning of the iteration\n"
+    THRESHOLDS_AFTER: "The thresholds at the end of the iteration\n"

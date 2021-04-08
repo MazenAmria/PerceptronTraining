@@ -59,6 +59,17 @@ fit_i_body:
   lw $6, INPUT              # pass the message
   jal debug_vector
 
+  lw $4, W                  # pass W
+  lw $5, k                  # pass k
+  lw $6, _j                 # pass j
+  lw $7, WEIGHTS_BEFORE     # pass the message
+  jal debug_matrix
+
+  lw $4, T                  # pass T
+  lw $5, k                  # pass k
+  lw $6, THRESHOLDS_BEFORE  # pass the message
+  jal debug_vector
+
   lw $2, 0($fp)             # load _i
   sll $2, $2, 2             # convert to bytes address
   lw $3, X                  # load the inputs matrix (X)
@@ -143,7 +154,7 @@ fit_i_body:
   lw $4, W                  # pass W
   lw $5, k                  # pass k
   lw $6, _j                 # pass j
-  lw $7, WEIGHTS            # pass the message
+  lw $7, WEIGHTS_AFTER      # pass the message
   jal debug_matrix
 
   lw $4, 16($fp)            # pass dT
@@ -166,9 +177,9 @@ fit_i_body:
   lw $6, k                  # pass k
   jal add_vector
 
-  lw $4, T                  # pass dT
+  lw $4, T                  # pass T
   lw $5, k                  # pass k
-  lw $6, THRESHOLDS         # pass the message
+  lw $6, THRESHOLDS_AFTER   # pass the message
   jal debug_vector
 
 	lw $2, 12($fp)
