@@ -1,23 +1,80 @@
-input_module:
-  read the parameters from the user (learning rate, momentum, number of epochs, initial weight, initial threshold)
-  read from the file:
-    i,j,k (number of instances, number of features, number of classes) all are integers
-    F0,F1,F2,...,ClassNo (read a line, first j numbers are floats insert them as row in the X matrix,
-    last number is integer convert it using one_hot_encoding to a row in Y matrix)
-    
-file is CSV
-
 At main:
-  add messages:
-    PRE_ACTV: "Before Applying the activation function\n"
-    INPUT: "The input vector\n"
-    POST_ACTV: "After Applying the activation function\n"
-    DESIRED: "The desired output\n"
-    ERROR: "The error in the prediction\n"
-    WABS_CHANGE: "The absolute change in the weights\n"
-    WCHANGE: "The change in the weights\n"
-    WEIGHTS_BEFORE: "The weights at the beginning of the iteration\n"
-    WEIGHTS_AFTER: "The weights at the end of the iteration\n"
-    TH_CHANGE: "Change in thresholds\n"
-    THRESHOLDS_BEFORE: "The thresholds at the beginning of the iteration\n"
-    THRESHOLDS_AFTER: "The thresholds at the end of the iteration\n"
+  add data:
+    Wi:
+      type: float
+      value: from user
+    Ti:
+      type: float
+      value: from user
+    LR:
+      type: float
+      value: from user
+    B:
+      type: float
+      value: from user
+    EP:
+      type: int
+      value: from user
+    filename:
+      type: string
+      value: from user
+    i:
+      type: int
+      value: from file
+    _j:
+      type: int
+      value: from file
+    k:
+      type: int
+      value: from file
+    X: 
+      type: matrix
+      value: from file
+    Y:
+      type: matrix
+      value: from file
+    W:
+      type: matrix
+      value: initialize with Wi
+    T:
+      type: vector
+      value: initialize with Ti
+    ONE:
+      type: float
+      value: 1.0
+    PRE_ACTV: 
+      type: string
+      value: "Before Applying the activation function\n"
+    INPUT: 
+      type: string
+      value: "The input vector\n"
+    POST_ACTV: 
+      type: string
+      value: "After Applying the activation function\n"
+    DESIRED: 
+      type: string
+      value: "The desired output\n"
+    ERROR: 
+      type: string
+      value: "The error in the prediction\n"
+    WABS_CHANGE: 
+      type: string
+      value: "The absolute change in the weights\n"
+    WCHANGE: 
+      type: string
+      value: "The change in the weights\n"
+    WEIGHTS_BEFORE: 
+      type: string
+      value: "The weights at the beginning of the iteration\n"
+    WEIGHTS_AFTER: 
+      type: string
+      value: "The weights at the end of the iteration\n"
+    TH_CHANGE: 
+      type: string
+      value: "Change in thresholds\n"
+    THRESHOLDS_BEFORE: 
+      type: string
+      value: "The thresholds at the beginning of the iteration\n"
+    THRESHOLDS_AFTER: 
+      type: string
+      value: "The thresholds at the end of the iteration\n"
