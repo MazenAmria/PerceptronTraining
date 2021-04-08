@@ -27,13 +27,13 @@ In the fit:
   Allocate dT_k as the change in thresholds
 
   iterate with i:
-    print_vector(X_i)
-    transform X_i
+    debug_vector(X_i)
+    transform(X_i)
     E = Yd_i
     E -= Y
-    print_vector(Y)
-    print_vector(Yd_i)
-    print_vector(E)
+    debug_vector(Y)
+    debug_vector(Yd_i)
+    debug_vector(E)
 
     dC = vector_cross(E, X)
     dC = scale_matrix(dC, LR)
@@ -41,19 +41,20 @@ In the fit:
     dW += dC
     W += dW
 
-    print_matrix(dW)
-    print_matrix(W)
+    debug_matrix(dW)
+    debug_matrix(W)
 
     dT = scale_vector(dT, B)
     E = scale_vector(E, LR)
     dT += E
     T += dT
 
-    print_vector(dT)
-    print_vector(T)
+    debug_vector(dT)
+    debug_vector(T)
 
 In the transform:
 
   Y_i = linear_transform(W, X_i)
-  Y_i -= T_k
+  Y_i -= T
+  debug_vector(Y_i)
   activation(Y_i)
