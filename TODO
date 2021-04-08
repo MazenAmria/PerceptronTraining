@@ -1,5 +1,8 @@
-print_vector
-print_matrix
+  ##  print_vector
+  ##  print_matrix
+  ##  print_hr
+  ##  debug_vector
+  ##  debug_matrix
 ##################################
   ##  copy_vector
   ##  copy_matrix
