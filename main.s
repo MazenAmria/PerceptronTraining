@@ -1442,7 +1442,7 @@ fit_i_body:
   lw $4, 16($fp)                            # pass dT
   lw $5, 8($fp)                             # pass E (scaled)
   lw $6, k                                  # pass k
-  jal add_vector                
+  jal sub_vector                
 
   lw $4, 16($fp)                            # pass dT
   lw $5, k                                  # pass k
