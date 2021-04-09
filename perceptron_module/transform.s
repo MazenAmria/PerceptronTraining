@@ -16,14 +16,13 @@ transform:
   move $fp, $sp
   sw $4, 8($fp)                             # save X
   sw $5, 16($fp)                            # save Y
-                  
-  addiu $sp, $sp, -4                
+                                
   lw $4, 8($fp)                             # pass X
   lw $5, W                                  # pass W
   lw $6, 16($fp)                            # pass Y
   lw $7, k                                  # pass k
   lw $2, _j               
-  sw $2, 0($sp)                             # pass j
+  sw $2, -4($sp)                            # pass j
   jal linear_transform                      # Y = W * X (linear transformation)
                   
   lw $4, 16($fp)                            # pass Y
@@ -33,7 +32,7 @@ transform:
                   
   lw $4, 16($fp)                            # pass Y
   lw $5, k                                  # pass k
-  lw $6, PRE_ACTV                           # pass the title
+  la $6, PRE_ACTV                           # pass the title
   jal debug_vector                          # prints the output before the activation
                   
   lw $4, 16($fp)                            # pass Y

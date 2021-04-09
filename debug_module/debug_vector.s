@@ -5,7 +5,7 @@ debug_vector:
   # $a1 = size of the vector
   # $a2 = address of the message
     
-  addiu $sp, $sp, -16
+  addiu $sp, $sp, -20
   sw $ra, 4($sp)
   sw $fp, 0($sp)
   move $fp, $sp
@@ -34,6 +34,6 @@ debug_vector:
   move $sp, $fp                 
   lw $fp, 0($sp)                  
   lw $ra, 4($sp)                            # pop the return address
-  addiu $sp, $sp, 16                        # free the stack
+  addiu $sp, $sp, 20                        # free the stack
   jr $ra                                    # return
 

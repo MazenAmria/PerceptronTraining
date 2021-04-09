@@ -30,7 +30,7 @@ At main:
     X: 
       type: matrix
       value: from file
-    Y:
+    Yd:
       type: matrix
       value: from file
     W:

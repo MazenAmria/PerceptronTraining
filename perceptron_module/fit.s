@@ -78,18 +78,18 @@ fit_i_body:
   addu $2, $3, $2                           # calculate the address
   lw $4, 0($2)                              # pass X[_i]
   lw $5, _j                                 # pass j
-  lw $6, INPUT                              # pass the message
+  la $6, INPUT                              # pass the message
   jal debug_vector                
 
   lw $4, W                                  # pass W
   lw $5, k                                  # pass k
   lw $6, _j                                 # pass j
-  lw $7, WEIGHTS_BEFORE                     # pass the message
+  la $7, WEIGHTS_BEFORE                     # pass the message
   jal debug_matrix                
 
   lw $4, T                                  # pass T
   lw $5, k                                  # pass k
-  lw $6, THRESHOLDS_BEFORE                  # pass the message
+  la $6, THRESHOLDS_BEFORE                  # pass the message
   jal debug_vector                
 
   lw $2, 0($fp)                             # load _i
@@ -102,7 +102,7 @@ fit_i_body:
 
   lw $4, 12($fp)                            # pass Y
   lw $5, k                                  # pass k
-  lw $6, POST_ACTV                          # pass the message
+  la $6, POST_ACTV                          # pass the message
   jal debug_vector                
 
   lw $2, 0($fp)                             # load _i
@@ -111,7 +111,7 @@ fit_i_body:
   addu $2, $3, $2                           # calculate the address
   lw $4, 0($2)                              # pass Yd[_i]
   lw $5, k                                  # pass k
-  lw $6, DESIRED                            # pass the message
+  la $6, DESIRED                            # pass the message
   jal debug_vector                
 
   lw $4, 8($fp)                             # pass E
@@ -129,27 +129,26 @@ fit_i_body:
 
   lw $4, 8($fp)                             # pass E
   lw $5, k                                  # pass k
-  lw $6, ERROR                              # pass the message
+  la $6, ERROR                              # pass the message
   jal debug_vector                
 
   lw $4, 8($fp)                             # pass E
   lw $5, LR                                 # pass LR
   lw $6, k                                  # pass k
   jal scale_vector                
-
-  addiu $sp, $sp, -4                
+               
   lw $4, 8($fp)                             # pass E (scaled) (k size)
   lw $5, 12($fp)                            # pass Y (j size)
   lw $6, 20($fp)                            # pass dC (kxj size)
   lw $7, k                                  # pass k
   lw $2, _j               
-  sw $2, 0($sp)                             # pass j
+  sw $2, -4($sp)                            # pass j
   jal vector_cross                
 
   lw $4, 20($fp)                            # pass dC
   lw $5, k                                  # pass k
   lw $6, _j                                 # pass j
-  lw $7, WABS_CHANGE                        # pass the message
+  la $7, WABS_CHANGE                        # pass the message
   jal debug_matrix                
 
   lw $4, 24($fp)                            # pass dW
@@ -167,7 +166,7 @@ fit_i_body:
   lw $4, 24($fp)                            # pass dW
   lw $5, k                                  # pass k
   lw $6, _j                                 # pass j
-  lw $7, WCHANGE                            # pass the message
+  la $7, WCHANGE                            # pass the message
   jal debug_matrix                
 
   lw $4, W                                  # pass W
@@ -179,7 +178,7 @@ fit_i_body:
   lw $4, W                                  # pass W
   lw $5, k                                  # pass k
   lw $6, _j                                 # pass j
-  lw $7, WEIGHTS_AFTER                      # pass the message
+  la $7, WEIGHTS_AFTER                      # pass the message
   jal debug_matrix                
 
   lw $4, 16($fp)                            # pass dT
@@ -194,7 +193,7 @@ fit_i_body:
 
   lw $4, 16($fp)                            # pass dT
   lw $5, k                                  # pass k
-  lw $6, TH_CHANGE                          # pass the message
+  la $6, TH_CHANGE                          # pass the message
   jal debug_vector                
 
   lw $4, T                                  # pass T
@@ -204,12 +203,12 @@ fit_i_body:
 
   lw $4, T                                  # pass T
   lw $5, k                                  # pass k
-  lw $6, THRESHOLDS_AFTER                   # pass the message
+  la $6, THRESHOLDS_AFTER                   # pass the message
   jal debug_vector                
 
-  lw $2, 12($fp)                
+  lw $2, 0($fp)                
   addiu $2, $2, 1               
-  sw $2, 12($fp)                
+  sw $2, 0($fp)                             # _i++                
 
 fit_i_check:   
 

@@ -6,7 +6,7 @@ vector_cross:
   # $a1: address of the second vector (j size)
   # $a2: address of the destination matrix (ixj size)
   # $a3: i (4-bytes integer)
-  # 0($sp): j (4-bytes integer)
+  # -4($sp): j (4-bytes integer)
 
   addiu $sp, $sp, -32
   sw $fp, 8($sp)

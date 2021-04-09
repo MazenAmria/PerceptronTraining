@@ -6,9 +6,9 @@ linear_transform:
   # $a1: address of the change of basis matrix (ixj size)
   # $a2: address of the output vector (i size)
   # $a3: i (4-bytes integer)
-  # 0($sp): j (4-bytes integer)
+  # -4($sp): j (4-bytes integer)
     
-  addiu	$sp, $sp, -28
+  addiu	$sp, $sp, -32
   sw $fp, 8($sp)
   move $fp, $sp
   sw $a0, 12($fp)	                          # save X
@@ -82,6 +82,6 @@ linear_transform_i_check:
   # else
   move $sp, $fp
   lw $fp, 8($sp)
-  addiu $sp, $sp, 28	                      # free the stack
+  addiu $sp, $sp, 32	                      # free the stack
   jr $ra                                    # return
 
