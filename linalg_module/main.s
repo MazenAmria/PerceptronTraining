@@ -19,6 +19,7 @@
     XY: .word 0
     X: .float 2.0, -1.0
     Y: .float 6.0, 3.0, 0.0
+    msg: .asciiz "This is a title\n"
   .text
   .globl main
 main:
@@ -39,6 +40,13 @@ main:
   lw $a3, c1
   jal fill_matrix
 
+  # debug A
+  lw $a0, A
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
+
   # Allocate the second matrix
   lw $a0, i
   lw $a1, _j
@@ -53,6 +61,13 @@ main:
   lw $a3, c2
   jal fill_matrix
 
+  # debug B
+  lw $a0, B
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
+
   # B += A
   lw $a0, B
   lw $a1, A
@@ -60,12 +75,26 @@ main:
   lw $a3, _j
   jal add_matrix
 
+  # debug B
+  lw $a0, B
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
+
   # A -= B
   lw $a0, A
   lw $a1, B
   lw $a2, i
   lw $a3, _j
   jal sub_matrix
+
+  # debug A
+  lw $a0, A
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
 
   # C = clone(A)
   lw $a0, A
@@ -75,12 +104,26 @@ main:
   la $t0, C
   sw $v0, 0($t0)
 
+  # debug C
+  lw $a0, C
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
+
   # Allocate D
   lw $a0, i
   lw $a1, _j
   jal allocate_matrix
   la $t0, D
   sw $v0, 0($t0)
+
+  # debug D
+  lw $a0, D
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
 
   # D = B
   lw $a0, D
@@ -89,12 +132,26 @@ main:
   lw $a3, _j
   jal assign_matrix
 
+  # debug D
+  lw $a0, D
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
+
   # scale C by 6.0
   lw $a0, C
   lw $a1, c3
   lw $a2, i
   lw $a3, _j
   jal scale_matrix
+
+  # debug C
+  lw $a0, C
+  lw $a1, i
+  lw $a2, _j
+  la $a3, msg
+  jal debug_matrix
 
   # create W
   la $t0, W
@@ -107,6 +164,19 @@ main:
   la $t1, r3
   sw $t1, 0($t0)
 
+  # debug W
+  la $a0, W
+  li $a1, 3
+  li $a2, 2
+  la $a3, msg
+  jal debug_matrix
+
+  # debug X
+  la $a0, X
+  li $a1, 2
+  la $a2, msg
+  jal debug_vector
+
   # transform X with W
   addiu $sp, $sp, -4
   la $a0, X
@@ -116,6 +186,12 @@ main:
   li $t0, 2
   sw $t0, 0($sp)
   jal linear_transform
+
+  # debug Y
+  la $a0, Y
+  li $a1, 3
+  la $a2, msg
+  jal debug_vector
 
   # Allocate XY
   li $a0, 2
@@ -133,6 +209,13 @@ main:
   li $t0, 3
   sw $t0, 0($sp)
   jal vector_cross
+
+  # debug XY
+  lw $a0, XY
+  li $a1, 2
+  li $a2, 3
+  la $a3, msg
+  jal debug_matrix
 
   # exit
   addiu $v0, $zero, 10
