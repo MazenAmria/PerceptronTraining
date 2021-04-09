@@ -31,8 +31,8 @@ copy_vector_i_body:
 	lw $t2, 4($fp)           # load dest
 	addu $t0, $t2, $t0         # calculate the address
 
-	lwc1 $f0, 0($t1)         # T = src[_i]
-	swc1 $f0, 0($t0)         # dest[_i] = T
+	l.s $f0, 0($t1)         # T = src[_i]
+	s.s $f0, 0($t0)         # dest[_i] = T
 
 	lw $t0, 0($fp)
 	addiu $t0, $t0, 1

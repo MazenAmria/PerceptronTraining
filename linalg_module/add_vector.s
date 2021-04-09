@@ -18,29 +18,24 @@ add_vector:
 add_vector_i_body:
 	lw	$t0, 0($fp)		  # load _i
 	sll	$t0, $t0, 2	      # convert to bytes offset
-	lw	$t1, 8($fp)		  # load A
-	addu $t0, $t1, $t0	    # calculate the address
-	lwc1 $f2, 0($t0)	    # load A[_i]
-
-	lw	$t0, 0($fp)		  # load _i
-	sll	$t0, $t0, 2	      # convert to bytes offset
 	lw	$t1, 12($fp)		  # load B
 	addu $t0, $t1, $t0	    # calculate the address
-	lwc1 $f0, 0($t0)	    # load B[_i]
+	l.s $f2, 0($t0)	    # load B[_i]
 
 	lw	$t0, 0($fp)		  # load _i
 	sll	$t0, $t0, 2	      # convert to bytes offset
 	lw	$t1, 8($fp)		  # load A
 	addu $t0, $t1, $t0	    # calculate the address
+  l.s $f0, 0($t0)
 	add.s $f0, $f2, $f0	# T = A[_i] + B[_i]
-	swc1 $f0, 0($t0)	    # A[_i] = T
+	s.s $f0, 0($t0)	    # A[_i] = T
 
 	lw $t0, 0($fp)
 	addiu $t0, $t0, 1
 	sw $t0, 0($fp)	      # _i++
 
 add_vector_i_check:
-	lw $t1, 4($fp)		    # load _i
+	lw $t1, 0($fp)		    # load _i
 	lw $t0, 16($fp)		  # load i
 	sltu $t0, $t1, $t0	    # if _i < i
 	bne	$t0, $zero, add_vector_i_body

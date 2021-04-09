@@ -26,7 +26,8 @@ copy_matrix_i_body:
 	lw $t0, 0($fp)           # load _i
 	sll $t0, $t0, 2           # convert to bytes offset
 	lw $t1, 16($fp)          # load src
-	addu $a0, $t1, $t0         # pass src[_i]
+	addu $t0, $t1, $t0         # calculate the address
+  lw $a0, 0($t0)              # pass src[_i]
 
   lw $a1, 24($fp)          # pass j
   jal copy_vector         # $t0 = copy_vector(src[_i], j)
@@ -50,7 +51,7 @@ copy_matrix_i_check:
 	bne	$t0, $zero, copy_matrix_i_body  # continue
 
 	move $sp, $fp
-	lw $t0, 4($fp)           # return dest
+	lw $v0, 4($fp)           # return dest
   lw $ra, 12($sp)         # pop $ra
 	lw $fp, 8($sp)          # pop $fp
 	addiu	$sp, $sp, 28      # free the stack

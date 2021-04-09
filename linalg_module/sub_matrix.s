@@ -8,6 +8,7 @@ sub_matrix:
   # $a3: j (4-bytes integer)
   
 	addiu	$sp, $sp, -28
+  sw $ra, 4($sp)
 	sw $fp, 8($sp)
 	move $fp, $sp
 	sw $a0, 12($fp)	  # save A
@@ -21,12 +22,14 @@ sub_matrix_i_body:
   lw $t0, 0($fp)		  # load _i
 	sll $t0, $t0, 2	    # convert to byte offset
 	lw $t1, 12($fp)		# load A
-	addu $a0, $t1, $t0	  # pass A[_i]
+	addu $t0, $t1, $t0	  # calculate the address
+  lw $a0, 0($t0)        # pass A[_i]
 
 	lw $t0, 0($fp)		  # load _i
 	sll $t0, $t0, 2	    # convert to byte offset
 	lw $t1, 16($fp)		# load B
-	addu $a1, $t1, $t0	  # pass B[_i]
+	addu $t0, $t1, $t0	  # calculate the address
+  lw $a1, 0($t0)        # pass B[_i]
 
   lw $a2, 24($fp)    # pass j
 
@@ -43,6 +46,7 @@ sub_matrix_i_check:
 	bne $t0, $zero, sub_matrix_i_body  # continue
   # else
 	move $sp, $fp
+  lw $ra, 4($sp)        # pop the return address
 	lw $fp, 8($sp)
 	addiu $sp, $sp, 28	  # free the stack
 	jr $ra                # return

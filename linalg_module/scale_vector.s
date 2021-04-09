@@ -16,19 +16,15 @@ scale_vector:
 	j scale_vector_i_check
 
 scale_vector_i_body:
-	lw	$t0, 0($fp)		  # load _i
+	l.s $f2, 12($fp)	  # load K
+  
+  lw	$t0, 0($fp)		  # load _i
 	sll	$t0, $t0, 2	      # convert to bytes offset
 	lw	$t1, 8($fp)		  # load A
 	addu $t0, $t1, $t0	    # calculate the address
-	l.s $f2, 0($t0)	    # load A[_i]
-
-	l.s $f0, 12($fp)	  # load K
-
-	lw	$t0, 0($fp)		  # load _i
-	sll	$t0, $t0, 2	      # convert to bytes offset
-	lw	$t1, 8($fp)		  # load A
-	addu $t0, $t1, $t0	    # calculate the address
-	mul.s $f0, $f2, $f0	# T = K * A[_i]
+	l.s $f0, 0($t0)	    # load A[_i]
+	
+  mul.s $f0, $f0, $f2	# T = K * A[_i]
 	s.s $f0, 0($t0)	    # A[_i] = T
 
 	lw $t0, 0($fp)

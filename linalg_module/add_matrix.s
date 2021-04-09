@@ -22,12 +22,14 @@ add_matrix_i_body:
   lw $t0, 0($fp)		  # load _i
 	sll $t0, $t0, 2	    # convert to byte offset
 	lw $t1, 12($fp)		# load A
-	addu $a0, $t1, $t0	  # pass A[_i]
+	addu $t0, $t1, $t0	  # calculate the address
+  lw $a0, 0($t0)        # pass A[_i]
 
 	lw $t0, 0($fp)		  # load _i
 	sll $t0, $t0, 2	    # convert to byte offset
 	lw $t1, 16($fp)		# load B
-	addu $a1, $t1, $t0	  # pass B[_i]
+	addu $t0, $t1, $t0	  # calculate the address
+  lw $a1, 0($t0)        # pass B[_i]
 
   lw $a2, 24($fp)    # pass j
 

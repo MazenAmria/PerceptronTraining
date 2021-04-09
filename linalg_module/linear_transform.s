@@ -33,7 +33,7 @@ linear_transform_j_body:
 	sll $t0, $t0, 2	    # convert to byte offset
 	lw $t1, 20($fp)		# load Y
 	addu $t0, $t1, $t0	  # calculate the address
-	lwc1 $f2, 0($t0)	  # load Y[_i]
+	l.s $f2, 0($t0)	  # load Y[_i]
 
 	lw $t0, 0($fp)		  # load _i
 	sll $t0, $t0, 2	    # convert to byte offset
@@ -44,13 +44,13 @@ linear_transform_j_body:
 	lw $t0, 4($fp)		  # load _j
 	sll $t0, $t0, 2	    # convert to byte offset
 	addu $t0, $t1, $t0	  # calculate the address
-	lwc1 $f4, 0($t0)	  # load W[_i][_j]
+	l.s $f4, 0($t0)	  # load W[_i][_j]
 
 	lw $t0, 4($fp)		  # load _j
 	sll $t0, $t0, 2	    # convert to byte offset
 	lw $t1, 16($fp)		# load X
 	addu $t0, $t1, $t0	  # calculate the address
-	lwc1 $f0, 0($t0)	  # load X[_j]
+	l.s $f0, 0($t0)	  # load X[_j]
 
 	mul.s $f0, $f4, $f0	 # T = W[_i][_j] * X[_j]
 
@@ -59,7 +59,7 @@ linear_transform_j_body:
 	lw $t1, 20($fp)		# load Y
 	addu $t0, $t1, $t0	  # calculate the address
 	add.s $f0, $f2, $f0	 # Y[_i] += T
-	swc1 $f0, 0($t0)	  # save Y[_i]
+	s.s $f0, 0($t0)	  # save Y[_i]
 
 	lw $t0, 4($fp)
 	addiu $t0, $t0, 1

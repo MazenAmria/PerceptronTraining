@@ -27,13 +27,13 @@ vector_cross_j_body:
 	sll $t0, $t0, 2         # convert to bytes offset
 	lw $t1, 12($fp)        # load A
 	addu $t0, $t1, $t0       # calculate the address
-	lwc1 $f2, 0($t0)       # T1 = A[_i]
+	l.s $f2, 0($t0)       # T1 = A[_i]
 	
   lw $t0, 4($fp)         # load _j
 	sll $t0, $t0, 2         # convert to bytes offset
 	lw $t1, 16($fp)        # load B
 	addu $t0, $t1, $t0       # calculate the address
-	lwc1 $f0, 0($t0)       # T2 = B[_j]
+	l.s $f0, 0($t0)       # T2 = B[_j]
 	
   lw $t0, 0($fp)         # load _i
 	sll $t0, $t0, 2         # convert to bytes offset
@@ -45,7 +45,7 @@ vector_cross_j_body:
 	addu $t0, $t1, $t0       # calculate the address of M[_i][_j]
 	
   mul.s $f0, $f2, $f0   # T = T1 * T2
-	swc1 $f0, 0($t0)       # M[_i][_j] = T
+	s.s $f0, 0($t0)       # M[_i][_j] = T
 
 	lw $t0, 4($fp)
 	addiu $t0, $t0, 1
