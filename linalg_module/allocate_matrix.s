@@ -51,3 +51,4 @@ allocate_i_check:
   lw $ra, 16($sp)                           # reset the return address
   addiu $sp, $sp, 28	                      # free the stack
   jr $ra                                    # return
+

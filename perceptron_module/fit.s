@@ -33,7 +33,7 @@ fit:
   move $4, $2                               # pass dW
   lw $5, k                                  # pass k
   lw $6, _j                                 # pass _j
-  lw $7, $0                                 # pass 0
+  move $7, $0                               # pass 0
   jal fill_matrix               
 
   lw $4, k                                  # load k
@@ -48,7 +48,7 @@ fit:
   sw $2, 16($fp)                            # save dT
   move $4, $2                               # pass dT
   lw $5, k                                  # pass k
-  lw $6, $0                                 # pass 0
+  move $7, $0                               # pass 0
   jal fill_vector               
 
   lw $4, k                                  # pass k
@@ -234,3 +234,4 @@ fit_e_check:
   lw $31, 32($sp)                           # pop the return address
   addiu $sp, $sp, 36                        # free the stack
   jr $31                                    # return
+

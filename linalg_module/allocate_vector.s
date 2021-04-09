@@ -10,3 +10,4 @@ allocate_vector:
   syscall
   
   jr $ra
+

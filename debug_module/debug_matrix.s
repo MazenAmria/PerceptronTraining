@@ -39,3 +39,4 @@ debug_matrix:
   lw $ra, 4($sp)                            # pop the return address
   addiu $sp, $sp, 20                        # free the stack
   jr $ra                                    # return
+

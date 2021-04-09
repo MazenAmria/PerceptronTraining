@@ -30,3 +30,4 @@ one_hot_encoding:
   lw $fp, 0($sp)                    
   addiu $sp, $sp, 20                    
   jr $31                                    # return
+

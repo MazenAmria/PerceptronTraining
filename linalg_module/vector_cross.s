@@ -75,3 +75,4 @@ vector_cross_i_check:
   lw $fp, 8($sp)
   addiu	$sp, $sp, 32                        # free the stack
   jr $ra                                    # return
+

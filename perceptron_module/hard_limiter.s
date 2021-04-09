@@ -19,10 +19,10 @@ hard_limiter_i_body:
   sll $2, $2, 2                             # convert to bytes address
   lw $3, 8($fp)                             # load vec
   addu $2, $3, $2                           # claculate the address
-  lwc1 $f0, 0($2)                           # load vec[_i]
+  l.s $f0, 0($2)                            # load vec[_i]
   mtc1 $0, $f2                              # load the 0
   c.le.s $f2, $f0                           # if 0 <= vec[_i]
-  bc1f hard_limiter_i_false                 # else              
+  bc1f hard_limiter_else                    # else              
   lw $2, 0($fp)                             # load _i
   sll $2, $2, 2                             # convert to bytes address
   lw $3, 8($fp)                             # load vec
@@ -46,6 +46,7 @@ hard_limiter_i_increment:
   sw $2, 0($fp)                             # _i++
 
 hard_limiter_i_check: 
+
   lw $3, 0($fp)                             # load i
   lw $2, 12($fp)                            # load _i
   sltu $2, $3, $2                           # if _i < i
@@ -55,4 +56,4 @@ hard_limiter_i_check:
   lw $fp, 4($sp)          
   addiu $sp, $sp, 16                        # free the stack
   jr $31                                    # return
-  
+

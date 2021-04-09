@@ -45,3 +45,4 @@ assign_vector_i_check:
   lw $fp, 4($sp)                            # pop $fp
   addiu	$sp, $sp, 20                        # free the stack
   jr $ra                                    # return
+

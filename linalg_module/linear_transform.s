@@ -84,3 +84,4 @@ linear_transform_i_check:
   lw $fp, 8($sp)
   addiu $sp, $sp, 28	                      # free the stack
   jr $ra                                    # return
+

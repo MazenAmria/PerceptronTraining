@@ -31,3 +31,4 @@ print_hr_i_check:
   lw $fp, 4($sp)
   addiu $sp, $sp, 8
   jr $ra
+

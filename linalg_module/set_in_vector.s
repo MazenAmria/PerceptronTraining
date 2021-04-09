@@ -26,3 +26,4 @@ set_in_vector:
   lw $fp, 0($sp)                  
   addiu	$sp, $sp, 16                        # free the stack
   jr $ra                                    # return
+

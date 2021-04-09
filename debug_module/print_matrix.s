@@ -41,3 +41,4 @@ print_matrix_i_check:
   lw $ra, 8($sp)                            # pop the return address
   addiu $sp, $sp, 24                        # free the stack
   jr $ra                                    # return
+
