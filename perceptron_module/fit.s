@@ -75,7 +75,8 @@ fit_i_body:
   lw $2, 0($fp)                             # load _i
   sll $2, $2, 2                             # convert to bytes address
   lw $3, X                                  # load the inputs matrix (X)
-  addiu $4, $3, $2                          # pass X[_i]
+  addu $2, $3, $2                           # calculate the address
+  lw $4, 0($2)                              # pass X[_i]
   lw $5, _j                                 # pass j
   lw $6, INPUT                              # pass the message
   jal debug_vector                
@@ -94,7 +95,8 @@ fit_i_body:
   lw $2, 0($fp)                             # load _i
   sll $2, $2, 2                             # convert to bytes address
   lw $3, X                                  # load the inputs matrix (X)
-  addiu $4, $3, $2                          # pass X[_i]
+  addu $2, $3, $2                           # calculate the address
+  lw $4, 0($2)                              # pass X[_i]
   lw $5, 12($fp)                            # pass Y
   jal transform               
 
@@ -106,7 +108,8 @@ fit_i_body:
   lw $2, 0($fp)                             # load _i
   sll $2, $2, 2                             # convert to bytes address
   lw $3, Yd                                 # load the desired output matrix (Yd)
-  addiu $4, $3, $2                          # pass Yd[_i]
+  addu $2, $3, $2                           # calculate the address
+  lw $4, 0($2)                              # pass Yd[_i]
   lw $5, k                                  # pass k
   lw $6, DESIRED                            # pass the message
   jal debug_vector                
@@ -115,7 +118,8 @@ fit_i_body:
   lw $2, 0($fp)                             # load _i
   sll $2, $2, 2                             # convert to bytes address
   lw $3, Yd                                 # load the desired output matrix (Yd)
-  addiu $5, $3, $2                          # pass Yd[_i]
+  addu $2, $3, $2                           # calculate the address
+  lw $5, 0($2)                              # pass Yd[_i]
   lw $6, k                                  # pass k
   jal assign_vector               
 
