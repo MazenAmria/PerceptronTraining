@@ -12,16 +12,18 @@
     c21: .float -8.2
     c3: .float 6.0
     c13: .float -49.2
-    msgA: .asciiz "The First Matrix\n"
-    msgB: .asciiz "The Second Matrix\n"
-    addB: .asciiz "The Second Matrix After Addition\n"
-    subA: .asciiz "The First Matrix After Subtraction\n"
-    scaleA: .asciiz "The First Matrix After Scaling\n"
-    msgC: .asciiz "The Third Matrix\n"
-    assignC: .asciiz "The Third Matrix After Assignment\n"
+    r1: .float 3.0, 0.0
+    r2: .float 2.0, 1.0
+    r3: .float -1.0, -2.0
+    W: .word 0, 0, 0
+    XY: .word 0
+    X: .float 2.0, -1.0
+    Y: .float 6.0, 3.0, 0.0
   .text
   .globl main
 main:
+
+  move $fp, $sp
 
   # Allocate the first matrix
   lw $a0, i
@@ -93,6 +95,44 @@ main:
   lw $a2, i
   lw $a3, _j
   jal scale_matrix
+
+  # create W
+  la $t0, W
+  la $t1, r1
+  sw $t1, 0($t0)
+  addiu $t0, $t0, 4
+  la $t1, r2
+  sw $t1, 0($t0)
+  addiu $t0, $t0, 4
+  la $t1, r3
+  sw $t1, 0($t0)
+
+  # transform X with W
+  addiu $sp, $sp, -4
+  la $a0, X
+  la $a1, W
+  la $a2, Y
+  li $a3, 3
+  li $t0, 2
+  sw $t0, 0($sp)
+  jal linear_transform
+
+  # Allocate XY
+  li $a0, 2
+  li $a1, 3
+  jal allocate_matrix
+  la $t0, XY
+  sw $v0, 0($t0)
+
+  # cross X and Y
+  addiu $sp, $sp, -4
+  la $a0, X
+  la $a1, Y
+  lw $a2, XY
+  li $a3, 2
+  li $t0, 3
+  sw $t0, 0($sp)
+  jal vector_cross
 
   # exit
   addiu $v0, $zero, 10
