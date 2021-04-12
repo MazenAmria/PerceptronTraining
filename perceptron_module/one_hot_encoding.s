@@ -6,28 +6,28 @@ one_hot_encoding:
   # $a2 = size of the vector (4-bytes unsigned integer)
     
   addiu $sp, $sp, -20
-  sw $31, 4($sp)                            # save $ra
+  sw $ra, 4($sp)                            # save $ra
   sw $fp, 0($sp)                            # save $fp
   move $fp, $sp                           
-  sw $4, 8($fp)                             # save y
-  sw $5, 12($fp)                            # save dest
-  sw $6, 16($fp)                            # save i
+  sw $a0, 8($fp)                            # save y
+  sw $a1, 12($fp)                           # save dest
+  sw $a2, 16($fp)                           # save i
                     
-  move $6, $0                               # pass 0
-  lw $5, 16($fp)                            # pass i
-  lw $4, 12($fp)                            # pass dest
+  move $a2, $zero                           # pass 0
+  lw $a1, 16($fp)                           # pass i
+  lw $a0, 12($fp)                           # pass dest
   jal fill_vector                           # (dest, i, 0)
                     
-  lw $2, 8($fp)                             # load y
-  sll $2, $2, 2                             # convert to bytes offset
-  lw $3, 12($fp)                            # load dest        
-  addu $2, $3, $2                           # calculate the address
+  lw $t0, 8($fp)                            # load y
+  sll $t0, $t0, 2                           # convert to bytes offset
+  lw $t1, 12($fp)                           # load dest        
+  addu $t0, $t1, $t0                        # calculate the address
   l.s $f0, ONE                    
-  s.s $f0, 0($2)                            # dest[y] = 1.0
+  s.s $f0, 0($t0)                           # dest[y] = 1.0
                         
   move $sp, $fp                   
-  lw $31, 4($sp)                    
+  lw $ra, 4($sp)                    
   lw $fp, 0($sp)                    
   addiu $sp, $sp, 20                    
-  jr $31                                    # return
+  jr $ra                                    # return
 

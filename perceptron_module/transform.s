@@ -11,38 +11,38 @@ transform:
   # activation: the address of the used activation function
 
   addiu $sp, $sp, -20
-  sw $31, 4($sp)
+  sw $ra, 4($sp)
   sw $fp, 0($sp)
   move $fp, $sp
-  sw $4, 8($fp)                             # save X
-  sw $5, 16($fp)                            # save Y
+  sw $a0, 8($fp)                            # save X
+  sw $a1, 16($fp)                           # save Y
                                 
-  lw $4, 8($fp)                             # pass X
-  lw $5, W                                  # pass W
-  lw $6, 16($fp)                            # pass Y
-  lw $7, k                                  # pass k
-  lw $2, _j               
-  sw $2, -4($sp)                            # pass j
+  lw $a0, 8($fp)                            # pass X
+  lw $a1, W                                 # pass W
+  lw $a2, 16($fp)                           # pass Y
+  lw $a3, k                                 # pass k
+  lw $t0, _j               
+  sw $t0, -4($sp)                           # pass j
   jal linear_transform                      # Y = W * X (linear transformation)
                   
-  lw $4, 16($fp)                            # pass Y
-  lw $5, T                                  # pass T
-  lw $6, k                                  # pass k
+  lw $a0, 16($fp)                           # pass Y
+  lw $a1, T                                 # pass T
+  lw $a2, k                                 # pass k
   jal sub_vector                            # Y -= T
                   
-  lw $4, 16($fp)                            # pass Y
-  lw $5, k                                  # pass k
-  la $6, PRE_ACTV                           # pass the title
+  lw $a0, 16($fp)                           # pass Y
+  lw $a1, k                                 # pass k
+  la $a2, PRE_ACTV                          # pass the title
   jal debug_vector                          # prints the output before the activation
                   
-  lw $4, 16($fp)                            # pass Y
-  lw $5, k                                  # pass k
-  lw $2, activation               
-  jalr $2                                   # activation(Y)
+  lw $a0, 16($fp)                           # pass Y
+  lw $a1, k                                 # pass k
+  lw $t0, activation               
+  jalr $t0                                  # activation(Y)
 
   move $sp, $fp
-  lw $31, 4($sp)
+  lw $ra, 4($sp)
   lw $fp, 0($sp)
   addiu $sp, $sp, 20
-  jr $31
+  jr $ra
 
