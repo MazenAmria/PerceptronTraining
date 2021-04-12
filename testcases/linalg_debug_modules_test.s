@@ -19,7 +19,17 @@
     XY: .word 0
     X: .float 2.0, -1.0
     Y: .float 6.0, 3.0, 0.0
-    msg: .asciiz "This is a title\n"
+    msg1: .asciiz "A\n"
+    msg2: .asciiz "B\n"
+    msg3: .asciiz "B += A\n"
+    msg4: .asciiz "A -= B\n"
+    msg5: .asciiz "C = clone(A)\n"
+    msg6: .asciiz "D = B\n"
+    msg7: .asciiz "Scale C by 6.0\n"
+    msg8: .asciiz "W\n"
+    msg9: .asciiz "X\n"
+    msg10: .asciiz "Y\n"
+    msg11: .asciiz "XY\n"
   .text
   .globl main
 main:
@@ -44,7 +54,7 @@ main:
   lw $a0, A
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg1
   jal debug_matrix
 
   # Allocate the second matrix
@@ -65,7 +75,7 @@ main:
   lw $a0, B
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg2
   jal debug_matrix
 
   # B += A
@@ -79,7 +89,7 @@ main:
   lw $a0, B
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg3
   jal debug_matrix
 
   # A -= B
@@ -93,7 +103,7 @@ main:
   lw $a0, A
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg4
   jal debug_matrix
 
   # C = clone(A)
@@ -108,7 +118,7 @@ main:
   lw $a0, C
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg5
   jal debug_matrix
 
   # Allocate D
@@ -117,13 +127,6 @@ main:
   jal allocate_matrix
   la $t0, D
   sw $v0, 0($t0)
-
-  # debug D
-  lw $a0, D
-  lw $a1, i
-  lw $a2, _j
-  la $a3, msg
-  jal debug_matrix
 
   # D = B
   lw $a0, D
@@ -136,7 +139,7 @@ main:
   lw $a0, D
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg6
   jal debug_matrix
 
   # scale C by 6.0
@@ -150,7 +153,7 @@ main:
   lw $a0, C
   lw $a1, i
   lw $a2, _j
-  la $a3, msg
+  la $a3, msg7
   jal debug_matrix
 
   # create W
@@ -168,13 +171,13 @@ main:
   la $a0, W
   li $a1, 3
   li $a2, 2
-  la $a3, msg
+  la $a3, msg8
   jal debug_matrix
 
   # debug X
   la $a0, X
   li $a1, 2
-  la $a2, msg
+  la $a2, msg9
   jal debug_vector
 
   # transform X with W
@@ -190,7 +193,7 @@ main:
   # debug Y
   la $a0, Y
   li $a1, 3
-  la $a2, msg
+  la $a2, msg10
   jal debug_vector
 
   # Allocate XY
@@ -214,7 +217,7 @@ main:
   lw $a0, XY
   li $a1, 2
   li $a2, 3
-  la $a3, msg
+  la $a3, msg11
   jal debug_matrix
 
   # exit
