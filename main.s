@@ -1,14 +1,28 @@
-# ONLY FOR TESTING PURPOSES
-  .data
-    Wi: .float 0.5
-    Ti: .float 0.0
-    LR: .float 0.3
-    B: .float 0.90
-    EP: .word 3
-    i: .word 4
-    _j: .word 2
-    k: .word 1
-    X: .word 0
+
+  .data 
+    msg1: .asciiz "Enter file name:"
+    msg2: .asciiz "Enter the "
+    msg3: .asciiz " initial weights:"
+    msg4: .asciiz "Enter momentum:"
+    msg5: .asciiz "Enter learning rate:"
+    msg6: .asciiz "Enter Threshold:"
+    msg7: .asciiz "Enter epochs:"  
+    file: .space 40    		# filename for input
+    buffer: .space 1024		#read file
+    i: .word 0			#num of training sets
+    _j: .word 0			#num of features
+    k: .word 0			#num of classes
+    X: .space 1024		#features
+    Y: .space 1024		#desired classes
+    Wi: .space 100		#initial weights
+    B: .float 0.0		#momentum
+    LR: .float 0.0		#learning rate
+    Ti: .float 0.0		#initial threshold
+    EP: .word 3			#num of epochs
+    
+    
+    
+   
     Yd: .word 0
     W: .word 0
     T: .word 0
@@ -30,133 +44,180 @@
   .globl main
 main:
 
-  move $fp, $sp
+#prompt for file name
+li $v0, 4 	#call to print string
+la $a0, msg1	#enter file name prompt
+syscall
 
-  # Allocate W matrix
-  lw $a0, k
-  lw $a1, _j
-  jal allocate_matrix
-  la $t0, W
-  sw $v0, 0($t0)
+li $v0, 8	#call to read string
+la $a0, file	#save file name
+li $a1, 40	#name size
+syscall
 
-  # fill it with Wi
-  lw $a0, W
-  lw $a1, k
-  lw $a2, _j
-  lw $a3, Wi
-  jal fill_matrix
+la $t0, file	
+li $t2, 10	#10 = \n
+loop:		#loop to find the last char of the name
+addi $t0, $t0, 1
+lb $t1, 0($t0)
+bne $t1, $t2, loop	#if name isn't over continue looping
 
-  # Allocate T vector
-  lw $a0, k
-  jal allocate_vector
-  la $t0, T
-  sw $v0, 0($t0)
+li $t2, 0
+sb $t2, 0($t0)	#terminate string with null char
 
-  # fill it with Ti
-  lw $a0, T
-  lw $a1, k
-  lw $a2, Ti
-  jal fill_vector
 
-  # Allocate X matrix
-  lw $a0, i
-  lw $a1, _j
-  jal allocate_matrix
-  la $t0, X
-  sw $v0, 0($t0)
+#open file
+la $a0, file	#"load file address"
+li $a1, 0	#"flags"
+li $a2, 0
+li $v0, 13	#"call number for opening a file"
+syscall
 
-  # fill X
-  lw $a0, X
-  li $a1, 0
-  li $a2, 0
-  move $a3, $0
-  jal set_in_matrix
+#read file
+move $a0, $v0	#file handle
+la $a1, buffer	
+li $a2, 1024	#max buffer size
+li $v0, 14	#call number to read file
+syscall
 
-  lw $a0, X
-  li $a1, 0
-  li $a2, 1
-  move $a3, $0
-  jal set_in_matrix
+#parse file
+la $t9, buffer
+lb $t0, 0($t9)	#read number of features
+addi $t0,$t0, -48 # convert to int
+la $t8, _j
+sw $t0, 0($t8)	# store in memory
 
-  lw $a0, X
-  li $a1, 1
-  li $a2, 0
-  move $a3, $0
-  jal set_in_matrix
+lb $t1, 3($t9) #read number of classes. Skip \r and \n
+addi $t1, $t1, -48  # convert to int
+la $t8, k 
+sw $t1, 0($t8)	# store in memory
 
-  lw $a0, X
-  li $a1, 1
-  li $a2, 1
-  lw $a3, ONE
-  jal set_in_matrix
+#___________________________read features & classes_____________________________________
 
-  lw $a0, X
-  li $a1, 2
-  li $a2, 0
-  lw $a3, ONE
-  jal set_in_matrix
+li $s4, 0 	#counter for number of training sets
+la $s3, Y	# s3: pointer to Y array (desired outputs)
+la $t1, _j
+lw $s2, 0($t1)	# s2: number of features to read
+la $s1, X	# s1: pointer to X array (features)
+li $s0, 0	# s0: stores the integer while it is being built
+li $t1, 0	# t1: counter for the features read
+		# t0: temp to hold components of the integer
+		# t9: pointer to buffer 
+addi $t9, $t9, 6
 
-  lw $a0, X
-  li $a1, 2
-  li $a2, 1
-  move $a3, $0
-  jal set_in_matrix
+loop2:			#read a feature__________
+lb $t0, 0($t9)
+beq $t0, 44, comp	#compare to comma ','
+addi $t9, $t9, 1 	#increment pointer
+addi $t0,$t0, -48 	# convert to int
+beqz $s2, row		#branch if last element in this row 
+addu $s0, $s0, $t0	#build integer
+mul $s0, $s0, 10	#build integer
+j loop2
 
-  lw $a0, X
-  li $a1, 3
-  li $a2, 0
-  lw $a3, ONE
-  jal set_in_matrix
+comp:
+div $s0, $s0, 10	#reverse last multiplication
+sw $s0, 0($s1)		#store feature in the X array
+addu $s1, $s1, 4	#point to next index
+addi $s2,$s2, -1	#decrement number of features left in this row
+addi $t9, $t9, 1 	#skip ','
+li $s0, 0		#reset s0 to hold the next integer
+j loop2			#end read feature_________
 
-  lw $a0, X
-  li $a1, 3
-  li $a2, 1
-  lw $a3, ONE
-  jal set_in_matrix
+row:
+sw $t0, 0($s3)		#add desired output to Y array
+addu $s3, $s3, 4	#point to next index
+la $t1, _j		#reset number of features for the next line
+lw $s2, 0($t1)		
 
-  # Allocate Yd matrix
-  lw $a0, i
-  lw $a1, k
-  jal allocate_matrix
-  la $t0, Yd
-  sw $v0, 0($t0)
-  
-  # fill Yd
-  lw $a0, Yd
-  li $a1, 0
-  li $a2, 0
-  move $a3, $0
-  jal set_in_matrix
+addi $s4, $s4, 1	#increment the training set counter
+addi $t9, $t9, 2	#skip \r \n
+lb $t0, 0($t9)		#compare next to null
+bne $t0, 0, loop2	#if eof continue
 
-  lw $a0, Yd
-  li $a1, 1
-  li $a2, 0
-  move $a3, $0
-  jal set_in_matrix
+la $t0, i
+sw $s4, 0($t0)		#store the number of training sets
 
-  lw $a0, Yd
-  li $a1, 2
-  li $a2, 0
-  move $a3, $0
-  jal set_in_matrix
+#_____________________________________ENTER OTHER VALUES______________________________________
 
-  lw $a0, Yd
-  li $a1, 3
-  li $a2, 0
-  lw $a3, ONE
-  jal set_in_matrix
+#display prompt
+li $v0, 4 	#call to print string
+la $a0, msg2	
+syscall
 
-  # pass the activation function
-  la $t0, hard_limiter
-  la $t1, activation
-  sw $t0, 0($t1)
+la $t1, _j	#get number of features
+lw $a0, 0($t1)
+move $s0, $a0		# a0: number of weights
+li $v0, 1
+syscall			#print number of weights
 
-  jal fit
+li $v0, 4 	#call to print string
+la $a0, msg3	
+syscall
 
-  # exit
-  addiu $v0, $zero, 10
-  syscall
+#read weights
+la $a1, Wi	
+loop4:
+jal read_float
+addi $a1, $a1, 4	#point to next index
+addi $s0, $s0, -1 	#decrement counter of weights
+bnez $s0, loop4
 
+#prompt for momentum
+li $v0, 4 	#call to print string
+la $a0, msg4	#enter file name prompt
+syscall
+#read momentum
+la $a1, B	
+jal read_float
+
+
+#prompt for Learning rate
+li $v0, 4 	#call to print string
+la $a0, msg5	#enter file name prompt
+syscall
+#read Learning rate
+la $a1, LR	
+jal read_float
+
+
+#prompt for Threshold
+li $v0, 4 	#call to print string
+la $a0, msg6	#enter file name prompt
+syscall
+#read initial Threshold
+la $a1, Ti	
+jal read_float
+
+
+#prompt for epochs
+li $v0, 4 	#call to print string
+la $a0, msg7	#enter file name prompt
+syscall
+#read number of epochs
+li $v0, 5
+syscall
+la $t0, EP
+sw $v0, 0($t0)
+
+#print Float
+#la $t0, B
+#lwc1 $f12, 0($t0)
+#li $v0, 2
+#syscall
+
+
+li $v0, 10
+syscall
+
+read_float:
+li $v0, 6		#call to read float	
+syscall			#read float weight
+swc1 $f0, 0($a1)
+
+jr $ra
+
+
+ 
 debug_matrix:
   # Debugs a matrix of floats
   # $a0 = address of the matrix
@@ -1274,218 +1335,218 @@ fit:
   # W and T are trained properly to fit the data
 
   addiu $sp, $sp, -36
-  sw $31, 32($sp)                           # save $ra
+  sw $ra, 32($sp)                           # save $ra
   sw $fp, 28($sp)               
   move $fp, $sp               
 
-  lw $4, k                                  # load k
-  lw $5, _j                                 # load j
+  lw $a0, k                                 # load k
+  lw $a1, _j                                # load j
   jal allocate_matrix               
 
-  sw $2, 24($fp)                            # save dW
-  move $4, $2                               # pass dW
-  lw $5, k                                  # pass k
-  lw $6, _j                                 # pass _j
-  move $7, $0                               # pass 0
+  sw $v0, 24($fp)                           # save dW
+  move $a0, $v0                             # pass dW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass _j
+  move $a3, $zero                           # pass 0
   jal fill_matrix               
 
-  lw $4, k                                  # load k
-  lw $5, _j                                 # load j
+  lw $a0, k                                 # load k
+  lw $a1, _j                                # load j
   jal allocate_matrix               
 
-  sw $2, 20($fp)                            # save dC
+  sw $v0, 20($fp)                           # save dC
 
-  lw $4, k                                  # pass k
+  lw $a0, k                                 # pass k
   jal allocate_vector               
 
-  sw $2, 16($fp)                            # save dT
-  move $4, $2                               # pass dT
-  lw $5, k                                  # pass k
-  move $7, $0                               # pass 0
+  sw $v0, 16($fp)                           # save dT
+  move $a0, $v0                             # pass dT
+  lw $a1, k                                 # pass k
+  move $a3, $zero                           # pass 0
   jal fill_vector               
 
-  lw $4, k                                  # pass k
+  lw $a0, k                                 # pass k
   jal allocate_vector               
 
-  sw $2, 12($fp)                            # save Y
+  sw $v0, 12($fp)                           # save Y
 
-  lw $4, k                                  # pass k
+  lw $a0, k                                 # pass k
   jal allocate_vector               
 
-  sw $2, 8($fp)                             # save E
+  sw $v0, 8($fp)                            # save E
 
-  sw $0, 4($fp)                             # unsigned int e = 0
+  sw $zero, 4($fp)                          # unsigned int e = 0
 
   j fit_e_check               
 
 fit_e_body:               
 
-  sw $0, 0($fp)                             # unsigned int _i = 0
+  sw $zero, 0($fp)                          # unsigned int _i = 0
   j	fit_i_check               
 
 fit_i_body:               
 
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, X                                  # load the inputs matrix (X)
-  addu $2, $3, $2                           # calculate the address
-  lw $4, 0($2)                              # pass X[_i]
-  lw $5, _j                                 # pass j
-  la $6, INPUT                              # pass the message
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, X                                 # load the inputs matrix (X)
+  addu $t0, $t1, $t0                        # calculate the address
+  lw $a0, 0($t0)                            # pass X[_i]
+  lw $a1, _j                                # pass j
+  la $a2, INPUT                             # pass the message
   jal debug_vector                
 
-  lw $4, W                                  # pass W
-  lw $5, k                                  # pass k
-  lw $6, _j                                 # pass j
-  la $7, WEIGHTS_BEFORE                     # pass the message
+  lw $a0, W                                 # pass W
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  la $a3, WEIGHTS_BEFORE                    # pass the message
   jal debug_matrix                
 
-  lw $4, T                                  # pass T
-  lw $5, k                                  # pass k
-  la $6, THRESHOLDS_BEFORE                  # pass the message
+  lw $a0, T                                 # pass T
+  lw $a1, k                                 # pass k
+  la $a2, THRESHOLDS_BEFORE                 # pass the message
   jal debug_vector                
 
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, X                                  # load the inputs matrix (X)
-  addu $2, $3, $2                           # calculate the address
-  lw $4, 0($2)                              # pass X[_i]
-  lw $5, 12($fp)                            # pass Y
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, X                                 # load the inputs matrix (X)
+  addu $t0, $t1, $t0                        # calculate the address
+  lw $a0, 0($t0)                            # pass X[_i]
+  lw $a1, 12($fp)                           # pass Y
   jal transform               
 
-  lw $4, 12($fp)                            # pass Y
-  lw $5, k                                  # pass k
-  la $6, POST_ACTV                          # pass the message
+  lw $a0, 12($fp)                           # pass Y
+  lw $a1, k                                 # pass k
+  la $a2, POST_ACTV                         # pass the message
   jal debug_vector                
 
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, Yd                                 # load the desired output matrix (Yd)
-  addu $2, $3, $2                           # calculate the address
-  lw $4, 0($2)                              # pass Yd[_i]
-  lw $5, k                                  # pass k
-  la $6, DESIRED                            # pass the message
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, Yd                                # load the desired output matrix (Yd)
+  addu $t0, $t1, $t0                        # calculate the address
+  lw $a0, 0($t0)                            # pass Yd[_i]
+  lw $a1, k                                 # pass k
+  la $a2, DESIRED                           # pass the message
   jal debug_vector                
 
-  lw $4, 8($fp)                             # pass E
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, Yd                                 # load the desired output matrix (Yd)
-  addu $2, $3, $2                           # calculate the address
-  lw $5, 0($2)                              # pass Yd[_i]
-  lw $6, k                                  # pass k
+  lw $a0, 8($fp)                            # pass E
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, Yd                                # load the desired output matrix (Yd)
+  addu $t0, $t1, $t0                        # calculate the address
+  lw $a1, 0($t0)                            # pass Yd[_i]
+  lw $a2, k                                 # pass k
   jal assign_vector               
 
-  lw $4, 8($fp)                             # pass E (= Yd) 
-  lw $5, 12($fp)                            # pass Y
+  lw $a0, 8($fp)                            # pass E (= Yd) 
+  lw $a1, 12($fp)                           # pass Y
   jal sub_vector                            # E = Yd - Y
 
-  lw $4, 8($fp)                             # pass E
-  lw $5, k                                  # pass k
-  la $6, ERROR                              # pass the message
+  lw $a0, 8($fp)                            # pass E
+  lw $a1, k                                 # pass k
+  la $a2, ERROR                             # pass the message
   jal debug_vector                
 
-  lw $4, 8($fp)                             # pass E
-  lw $5, LR                                 # pass LR
-  lw $6, k                                  # pass k
+  lw $a0, 8($fp)                            # pass E
+  lw $a1, LR                                # pass LR
+  lw $a2, k                                 # pass k
   jal scale_vector                
                
-  lw $4, 8($fp)                             # pass E (scaled) (k size)
-  lw $5, 12($fp)                            # pass Y (j size)
-  lw $6, 20($fp)                            # pass dC (kxj size)
-  lw $7, k                                  # pass k
-  lw $2, _j               
-  sw $2, -4($sp)                            # pass j
+  lw $a0, 8($fp)                            # pass E (scaled) (k size)
+  lw $a1, 12($fp)                           # pass Y (j size)
+  lw $a2, 20($fp)                           # pass dC (kxj size)
+  lw $a3, k                                 # pass k
+  lw $t0, _j               
+  sw $t0, -4($sp)                           # pass j
   jal vector_cross                
 
-  lw $4, 20($fp)                            # pass dC
-  lw $5, k                                  # pass k
-  lw $6, _j                                 # pass j
-  la $7, WABS_CHANGE                        # pass the message
+  lw $a0, 20($fp)                           # pass dC
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  la $a3, WABS_CHANGE                       # pass the message
   jal debug_matrix                
 
-  lw $4, 24($fp)                            # pass dW
-  lw $5, B                                  # pass B
-  lw $6, k                                  # pass k
-  lw $7, _j                                 # pass j
+  lw $a0, 24($fp)                           # pass dW
+  lw $a1, B                                 # pass B
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
   jal scale_matrix                
 
-  lw $4, 24($fp)                            # pass dW
-  lw $5, 20($fp)                            # pass dC
-  lw $6, k                                  # pass k
-  lw $7, _j                                 # pass j
+  lw $a0, 24($fp)                           # pass dW
+  lw $a1, 20($fp)                           # pass dC
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
   jal add_matrix                
 
-  lw $4, 24($fp)                            # pass dW
-  lw $5, k                                  # pass k
-  lw $6, _j                                 # pass j
-  la $7, WCHANGE                            # pass the message
+  lw $a0, 24($fp)                           # pass dW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  la $a3, WCHANGE                           # pass the message
   jal debug_matrix                
 
-  lw $4, W                                  # pass W
-  lw $5, 24($fp)                            # pass dW
-  lw $6, k                                  # pass k
-  lw $7, _j                                 # pass j
+  lw $a0, W                                 # pass W
+  lw $a1, 24($fp)                           # pass dW
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
   jal add_matrix                
 
-  lw $4, W                                  # pass W
-  lw $5, k                                  # pass k
-  lw $6, _j                                 # pass j
-  la $7, WEIGHTS_AFTER                      # pass the message
+  lw $a0, W                                 # pass W
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  la $a3, WEIGHTS_AFTER                     # pass the message
   jal debug_matrix                
 
-  lw $4, 16($fp)                            # pass dT
-  lw $5, B                                  # pass B
-  lw $6, k                                  # pass k
+  lw $a0, 16($fp)                           # pass dT
+  lw $a1, B                                 # pass B
+  lw $a2, k                                 # pass k
   jal scale_vector                
 
-  lw $4, 16($fp)                            # pass dT
-  lw $5, 8($fp)                             # pass E (scaled)
-  lw $6, k                                  # pass k
+  lw $a0, 16($fp)                           # pass dT
+  lw $a1, 8($fp)                            # pass E (scaled)
+  lw $a2, k                                 # pass k
   jal sub_vector                
 
-  lw $4, 16($fp)                            # pass dT
-  lw $5, k                                  # pass k
-  la $6, TH_CHANGE                          # pass the message
+  lw $a0, 16($fp)                           # pass dT
+  lw $a1, k                                 # pass k
+  la $a2, TH_CHANGE                         # pass the message
   jal debug_vector                
 
-  lw $4, T                                  # pass T
-  lw $5, 16($fp)                            # pass dT
-  lw $6, k                                  # pass k
+  lw $a0, T                                 # pass T
+  lw $a1, 16($fp)                           # pass dT
+  lw $a2, k                                 # pass k
   jal add_vector                
 
-  lw $4, T                                  # pass T
-  lw $5, k                                  # pass k
-  la $6, THRESHOLDS_AFTER                   # pass the message
+  lw $a0, T                                 # pass T
+  lw $a1, k                                 # pass k
+  la $a2, THRESHOLDS_AFTER                  # pass the message
   jal debug_vector                
 
-  lw $2, 0($fp)                
-  addiu $2, $2, 1               
-  sw $2, 0($fp)                             # _i++                
+  lw $t0, 0($fp)                
+  addiu $t0, $t0, 1               
+  sw $t0, 0($fp)                            # _i++                
 
 fit_i_check:   
 
-  lw $3, i                                  # load i
-  lw $2, 0($fp)                             # load _i
-  sltu $2, $2, $3                           # if _i < i
-  bne $2, $0, fit_i_body                    # continue
+  lw $t1, i                                 # load i
+  lw $t0, 0($fp)                            # load _i
+  sltu $t0, $t0, $t1                        # if _i < i
+  bne $t0, $zero, fit_i_body                # continue
   # else                
-  lw $2, 4($fp)               
-  addiu $2, $2, 1               
-  sw $2, 4($fp)                             # e++
+  lw $t0, 4($fp)               
+  addiu $t0, $t0, 1               
+  sw $t0, 4($fp)                            # e++
 
 fit_e_check:  
 
-  lw $3, EP                                 # load EP
-  lw $2, 4($fp)                             # load e
-  sltu $2, $2, $3                           # if e < EP
-  bne $2, $0, fit_e_body                    # continue
+  lw $t1, EP                                # load EP
+  lw $t0, 4($fp)                            # load e
+  sltu $t0, $t0, $t1                        # if e < EP
+  bne $t0, $zero, fit_e_body                # continue
   # else                
   move $sp, $fp               
   lw $fp, 28($sp)               
-  lw $31, 32($sp)                           # pop the return address
+  lw $ra, 32($sp)                           # pop the return address
   addiu $sp, $sp, 36                        # free the stack
-  jr $31                                    # return
+  jr $ra                                    # return
 
 hard_limiter:
   # Applies the hard limiting activation function to a vector
@@ -1495,55 +1556,55 @@ hard_limiter:
   addiu $sp, $sp, -16
   sw $fp, 4($sp)
   move $fp, $sp     
-  sw $4, 8($fp)                             # save vec
-  sw $5, 12($fp)                            # save i
-  sw $0, 0($fp)                             # unsigned int _i = 0
+  sw $a0, 8($fp)                            # save vec
+  sw $a1, 12($fp)                           # save i
+  sw $zero, 0($fp)                          # unsigned int _i = 0
     
   j hard_limiter_i_check                  
     
 hard_limiter_i_body:  
                 
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, 8($fp)                             # load vec
-  addu $2, $3, $2                           # claculate the address
-  l.s $f0, 0($2)                            # load vec[_i]
-  mtc1 $0, $f2                              # load the 0
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, 8($fp)                            # load vec
+  addu $t0, $t1, $t0                        # claculate the address
+  l.s $f0, 0($t0)                           # load vec[_i]
+  mtc1 $zero, $f2                           # load the 0
   c.le.s $f2, $f0                           # if 0 <= vec[_i]
   bc1f hard_limiter_else                    # else              
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, 8($fp)                             # load vec
-  addu $2, $3, $2                           # caldulate the address
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, 8($fp)                            # load vec
+  addu $t0, $t1, $t0                        # caldulate the address
   l.s $f0, ONE                  
-  s.s $f0, 0($2)                            # dest[y] = 1.0
+  s.s $f0, 0($t0)                           # dest[y] = 1.0
   j hard_limiter_i_increment                
 
 hard_limiter_else:      
 
-  lw $2, 0($fp)                             # load _i
-  sll $2, $2, 2                             # convert to bytes address
-  lw $3, 8($fp)                             # load vec[_i]
-  addu $2, $3, $2                           # calculate the address
-  sw $0, 0($2)                              # vec[_i] = 0
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, 8($fp)                            # load vec[_i]
+  addu $t0, $t1, $t0                        # calculate the address
+  sw $zero, 0($t0)                          # vec[_i] = 0
 
 hard_limiter_i_increment: 
 
-  lw $2, 0($fp) 
-  addiu $2, $2, 1 
-  sw $2, 0($fp)                             # _i++
+  lw $t0, 0($fp) 
+  addiu $t0, $t0, 1 
+  sw $t0, 0($fp)                            # _i++
 
 hard_limiter_i_check: 
 
-  lw $3, 0($fp)                             # load i
-  lw $2, 12($fp)                            # load _i
-  sltu $2, $3, $2                           # if _i < i
-  bne $2, $0, hard_limiter_i_body           # continue
+  lw $t1, 0($fp)                            # load i
+  lw $t0, 12($fp)                           # load _i
+  sltu $t0, $t1, $t0                        # if _i < i
+  bne $t0, $zero, hard_limiter_i_body       # continue
   # else          
   move $sp, $fp         
   lw $fp, 4($sp)          
   addiu $sp, $sp, 16                        # free the stack
-  jr $31                                    # return
+  jr $ra                                    # return
 
 max_wsum:
   # Assigns 1 to the maximum weighted sum in the neurons
@@ -1612,30 +1673,30 @@ one_hot_encoding:
   # $a2 = size of the vector (4-bytes unsigned integer)
     
   addiu $sp, $sp, -20
-  sw $31, 4($sp)                            # save $ra
+  sw $ra, 4($sp)                            # save $ra
   sw $fp, 0($sp)                            # save $fp
   move $fp, $sp                           
-  sw $4, 8($fp)                             # save y
-  sw $5, 12($fp)                            # save dest
-  sw $6, 16($fp)                            # save i
+  sw $a0, 8($fp)                            # save y
+  sw $a1, 12($fp)                           # save dest
+  sw $a2, 16($fp)                           # save i
                     
-  move $6, $0                               # pass 0
-  lw $5, 16($fp)                            # pass i
-  lw $4, 12($fp)                            # pass dest
+  move $a2, $zero                           # pass 0
+  lw $a1, 16($fp)                           # pass i
+  lw $a0, 12($fp)                           # pass dest
   jal fill_vector                           # (dest, i, 0)
                     
-  lw $2, 8($fp)                             # load y
-  sll $2, $2, 2                             # convert to bytes offset
-  lw $3, 12($fp)                            # load dest        
-  addu $2, $3, $2                           # calculate the address
+  lw $t0, 8($fp)                            # load y
+  sll $t0, $t0, 2                           # convert to bytes offset
+  lw $t1, 12($fp)                           # load dest        
+  addu $t0, $t1, $t0                        # calculate the address
   l.s $f0, ONE                    
-  s.s $f0, 0($2)                            # dest[y] = 1.0
+  s.s $f0, 0($t0)                           # dest[y] = 1.0
                         
   move $sp, $fp                   
-  lw $31, 4($sp)                    
+  lw $ra, 4($sp)                    
   lw $fp, 0($sp)                    
   addiu $sp, $sp, 20                    
-  jr $31                                    # return
+  jr $ra                                    # return
 
 transform:
   # Transforms an input to the output using the neural network
@@ -1649,38 +1710,38 @@ transform:
   # activation: the address of the used activation function
 
   addiu $sp, $sp, -20
-  sw $31, 4($sp)
+  sw $ra, 4($sp)
   sw $fp, 0($sp)
   move $fp, $sp
-  sw $4, 8($fp)                             # save X
-  sw $5, 16($fp)                            # save Y
+  sw $a0, 8($fp)                            # save X
+  sw $a1, 16($fp)                           # save Y
                                 
-  lw $4, 8($fp)                             # pass X
-  lw $5, W                                  # pass W
-  lw $6, 16($fp)                            # pass Y
-  lw $7, k                                  # pass k
-  lw $2, _j               
-  sw $2, -4($sp)                            # pass j
+  lw $a0, 8($fp)                            # pass X
+  lw $a1, W                                 # pass W
+  lw $a2, 16($fp)                           # pass Y
+  lw $a3, k                                 # pass k
+  lw $t0, _j               
+  sw $t0, -4($sp)                           # pass j
   jal linear_transform                      # Y = W * X (linear transformation)
                   
-  lw $4, 16($fp)                            # pass Y
-  lw $5, T                                  # pass T
-  lw $6, k                                  # pass k
+  lw $a0, 16($fp)                           # pass Y
+  lw $a1, T                                 # pass T
+  lw $a2, k                                 # pass k
   jal sub_vector                            # Y -= T
                   
-  lw $4, 16($fp)                            # pass Y
-  lw $5, k                                  # pass k
-  la $6, PRE_ACTV                           # pass the title
+  lw $a0, 16($fp)                           # pass Y
+  lw $a1, k                                 # pass k
+  la $a2, PRE_ACTV                          # pass the title
   jal debug_vector                          # prints the output before the activation
                   
-  lw $4, 16($fp)                            # pass Y
-  lw $5, k                                  # pass k
-  lw $2, activation               
-  jalr $2                                   # activation(Y)
+  lw $a0, 16($fp)                           # pass Y
+  lw $a1, k                                 # pass k
+  lw $t0, activation               
+  jalr $t0                                  # activation(Y)
 
   move $sp, $fp
-  lw $31, 4($sp)
+  lw $ra, 4($sp)
   lw $fp, 0($sp)
   addiu $sp, $sp, 20
-  jr $31
+  jr $ra
 
