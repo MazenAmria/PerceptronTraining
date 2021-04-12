@@ -61,6 +61,9 @@ The program starts by asking the user for some values and the input file. Refer 
 We uses some basic conventions that the GCC compiler uses when compiling to MIPS assembly:
 * Call stack and Frames by making use of the $fp and $sp registers.
 * Local variables, passed arguments (that doesn't fit in $ax registers), returned values (that doesn't fit in $v registers) are stored in the frame of the function.
+
+![call-stack](/figures/call-stack.png)
+
 * The architecture of for loops, if statements and nesting them.
 
 Some of the comments contain the equivalent C code of the written MIPS assembly.
