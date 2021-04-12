@@ -65,4 +65,4 @@ We uses some basic conventions that the GCC compiler uses when compiling to MIPS
 
 Some of the comments contain the equivalent C code of the written MIPS assembly.
 
-Each module has it's own testcase that covers the basic functionality of the module. Refer to the bash scripts to generate the `main.s` file that contains that testcase.
+Each module has it's own testcase that covers the basic functionality of the module. Refer to the bash scripts located at `testcases` to generate the `main.s` file that contains that testcase.
