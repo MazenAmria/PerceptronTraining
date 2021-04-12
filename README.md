@@ -77,13 +77,13 @@ loop_body:
 forward_iterator:
   lw $t0, 0($fp)
   addiu $t0, $t0, 1
-  sw $t0, 0($fp)    # i++
+  sw $t0, 0($fp)      # i++
 
 check_condition:
   lw $t0, 0($fp)
   li $t1, 5
-  slt $t0, $t0, $t1 # if i < 5
-  bne loop_body     # continue the loop
+  slt $t0, $t0, $t1   # if i < 5
+  bne loop_body       # continue the loop
   # else: break
 ```
 
