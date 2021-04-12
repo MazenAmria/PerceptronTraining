@@ -9,20 +9,20 @@ allocate_matrix:
   sw $ra, 16($sp)
   sw $fp, 12($sp)
   move $fp, $sp
-  sw $a0, 24($fp)	                          # save i
-  sw $a1, 20($fp)	                          # save j
+  sw $a0, 24($fp)                           # save i
+  sw $a1, 20($fp)                           # save j
       
-  lw $a0, 24($fp)		                        # load i
+  lw $a0, 24($fp)                           # load i
   jal allocate_vector                       # T = allocate_vector(i) 
       
   sw $v0, 4($fp)                            # float ** matrix = T
       
-  sw $zero, 0($fp)	                        # unsigned int _i = 0
+  sw $zero, 0($fp)                          # unsigned int _i = 0
   j allocate_i_check      
       
 allocate_i_body:      
       
-  lw $a0, 20($fp)		                        # load j
+  lw $a0, 20($fp)                           # load j
   jal allocate_vector                       # T = allocate_vector(j)
         
   sw $v0, 8($fp)                            # float * temp = T
@@ -36,19 +36,19 @@ allocate_i_body:
       
   lw $t0, 0($fp)      
   addiu $t0, $t0, 1     
-  sw $t0, 0($fp)	                          # _i++
+  sw $t0, 0($fp)                            # _i++
       
 allocate_i_check:     
       
-  lw $t1, 0($fp)		                        # load _i
-  lw $t0, 24($fp)		                        # load i
-  sltu $t0, $t1, $t0	                      # if _i < i
+  lw $t1, 0($fp)                            # load _i
+  lw $t0, 24($fp)                           # load i
+  sltu $t0, $t1, $t0                        # if _i < i
   bne $t0, $zero, allocate_i_body           # continue
   # else      
   move $sp, $fp     
   lw $v0, 4($sp)                            # return matrix
   lw $fp, 12($sp)     
   lw $ra, 16($sp)                           # reset the return address
-  addiu $sp, $sp, 28	                      # free the stack
+  addiu $sp, $sp, 28                        # free the stack
   jr $ra                                    # return
 

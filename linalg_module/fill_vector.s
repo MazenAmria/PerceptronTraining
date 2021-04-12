@@ -38,6 +38,6 @@ fill_vector_i_check:
   # else
   move $sp, $fp
   lw $fp, 4($sp)
-  addiu	$sp, $sp, 20                        # free the stack
+  addiu $sp, $sp, 20                        # free the stack
   jr $ra                                    # return
 

@@ -24,6 +24,6 @@ set_in_vector:
                   
   move $sp, $fp                 
   lw $fp, 0($sp)                  
-  addiu	$sp, $sp, 16                        # free the stack
+  addiu $sp, $sp, 16                        # free the stack
   jr $ra                                    # return
 

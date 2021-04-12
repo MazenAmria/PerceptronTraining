@@ -20,7 +20,7 @@ copy_matrix:
   sw $v0, 4($fp)                            # save dest
   sw $zero, 0($fp)                          # unsigned int _i = 0
 
-  j	copy_matrix_i_check         
+  j copy_matrix_i_check         
 
 copy_matrix_i_body:         
 
@@ -50,12 +50,12 @@ copy_matrix_i_check:
   lw $t1, 0($fp)                            # load _i
   sltu $t0, $t1, $t0                        # if _i < i
 
-  bne	$t0, $zero, copy_matrix_i_body        # continue
+  bne $t0, $zero, copy_matrix_i_body        # continue
 
   move $sp, $fp
   lw $v0, 4($fp)                            # return dest
   lw $ra, 12($sp)                           # pop $ra
   lw $fp, 8($sp)                            # pop $fp
-  addiu	$sp, $sp, 28                        # free the stack
+  addiu $sp, $sp, 28                        # free the stack
   jr $ra                                    # return
 

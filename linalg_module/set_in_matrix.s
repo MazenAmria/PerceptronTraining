@@ -30,6 +30,6 @@ set_in_matrix:
   move $sp, $fp                 
   lw $ra, 4($sp)                  
   lw $fp, 0($sp)                  
-  addiu	$sp, $sp, 20                        # free the stack
+  addiu $sp, $sp, 20                        # free the stack
   jr $ra                                    # return
 

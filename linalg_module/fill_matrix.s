@@ -45,6 +45,6 @@ fill_matrix_i_check:
   move $sp, $fp
   lw $ra, 8($sp)
   lw $fp, 4($sp)
-  addiu	$sp, $sp, 28                        # free the stack
+  addiu $sp, $sp, 28                        # free the stack
   jr $ra                                    # return
 

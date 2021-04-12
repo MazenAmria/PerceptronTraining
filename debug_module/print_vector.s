@@ -1,4 +1,4 @@
-	.globl print_vector
+  .globl print_vector
 print_vector:
   # Prints a vector of floats
   # $a0 = address of the vector
@@ -10,7 +10,7 @@ print_vector:
   sw $a0, 8($fp)                            # save vec
   sw $a1, 12($fp)                           # save i
   sw $zero, 0($fp)                          # unsigned int _i = 0
-  j	print_vector_i_check                  
+  j print_vector_i_check                  
           
 print_vector_i_body:                  
 

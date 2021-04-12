@@ -68,7 +68,7 @@ fit:
 fit_e_body:               
 
   sw $zero, 0($fp)                          # unsigned int _i = 0
-  j	fit_i_check               
+  j fit_i_check               
 
 fit_i_body:               
 

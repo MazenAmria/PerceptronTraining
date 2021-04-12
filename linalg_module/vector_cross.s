@@ -16,12 +16,12 @@ vector_cross:
   sw $a2, 20($fp)                           # save M
   sw $a3, 24($fp)                           # save i
   sw $zero, 0($fp)                          # unsigned int _i = 0
-  j	vector_cross_i_check                
+  j vector_cross_i_check                
 
 vector_cross_i_body:                
 
   sw $zero, 4($fp)                          # unsigned int _j = 0
-  j	vector_cross_j_check                
+  j vector_cross_j_check                
 
 vector_cross_j_body:                
 
@@ -58,7 +58,7 @@ vector_cross_j_check:
   lw $t0, 28($fp)                           # load j
   lw $t1, 4($fp)                            # load _j
   sltu $t0, $t1, $t0                        # if _j < j
-  bne	$t0, $zero, vector_cross_j_body       # continue
+  bne $t0, $zero, vector_cross_j_body       # continue
   # else
   lw $t0, 0($fp)
   addiu $t0, $t0, 1
@@ -73,6 +73,6 @@ vector_cross_i_check:
   # else
   move $sp, $fp
   lw $fp, 8($sp)
-  addiu	$sp, $sp, 32                        # free the stack
+  addiu $sp, $sp, 32                        # free the stack
   jr $ra                                    # return
 

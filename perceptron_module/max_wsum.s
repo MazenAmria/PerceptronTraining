@@ -14,10 +14,10 @@ max_wsum:
   sw $zero, 0($fp)                          # unsigned int max_w = 0
   sw $zero, 4($fp)                          # unsigned int _i = 0
   
-  j	max_wsum_i_check
+  j max_wsum_i_check
 
 max_wsum_i_body:
-	
+
   lw $t0, 4($fp)                            # load _i
   sll $t0, $t0, 2                           # converts to bytes offset
   lw $t1, 16($fp)                           # load vec

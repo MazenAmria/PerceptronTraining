@@ -13,7 +13,7 @@ print_matrix:
   sw $a1, 16($fp)                           # save i
   sw $a2, 20($fp)                           # save j
   sw $zero, 0($fp)                          # unsigned int _i = 0
-  j	print_matrix_i_check                
+  j print_matrix_i_check                
           
 print_matrix_i_body:                
           
