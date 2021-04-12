@@ -1,6 +1,6 @@
 # ONLY FOR TESTING PURPOSES
   .data
-    Wi: .float 0.5
+    Wi: .float 0.5 0.5
     Ti: .float 0.0
     LR: .float 0.3
     B: .float 0.90
@@ -39,12 +39,12 @@ main:
   la $t0, W
   sw $v0, 0($t0)
 
-  # fill it with Wi
+  # initialize it with Wi
   lw $a0, W
-  lw $a1, k
-  lw $a2, _j
-  lw $a3, Wi
-  jal fill_matrix
+  la $a1, Wi
+  lw $a2, k
+  lw $a3, _j
+  jal initialize_weights
 
   # Allocate T vector
   lw $a0, k
@@ -52,7 +52,7 @@ main:
   la $t0, T
   sw $v0, 0($t0)
 
-  # fill it with Ti
+  # initialize it with Ti
   lw $a0, T
   lw $a1, k
   lw $a2, Ti
