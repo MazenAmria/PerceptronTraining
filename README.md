@@ -62,7 +62,7 @@ We uses some basic conventions that the GCC compiler uses when compiling to MIPS
 * Call stack and Frames by making use of the $fp and $sp registers.
 * Local variables, passed arguments (that doesn't fit in $ax registers), returned values (that doesn't fit in $v registers) are stored in the frame of the function.
 
-![call-stack](/figures/call-stack.png)
+![call-stack](/figures/call-stack.jpg)
 
 * The architecture of for loops, if statements and nesting them.
 
