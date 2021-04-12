@@ -66,6 +66,27 @@ We uses some basic conventions that the GCC compiler uses when compiling to MIPS
 
 * The architecture of for loops, if statements and nesting them.
 
+```assembly
+sw $zero, 0($fp)      # int i = 0
+
+j condition_ckeck
+
+loop_body:
+  # Here's the body of the loop
+
+forward_iterator:
+  lw $t0, 0($fp)
+  addiu $t0, $t0, 1
+  sw $t0, 0($fp)    # i++
+
+check_condition:
+  lw $t0, 0($fp)
+  li $t1, 5
+  slt $t0, $t0, $t1 # if i < 5
+  bne loop_body     # continue the loop
+  # else: break
+```
+
 Some of the comments contain the equivalent C code of the written MIPS assembly.
 
 Each module has it's own testcase that covers the basic functionality of the module. Refer to the bash scripts located at `testcases` to generate the `main.s` file that contains that testcase.
