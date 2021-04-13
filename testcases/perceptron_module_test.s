@@ -2,8 +2,9 @@
   .data
     Wi: .float 0.5 0.5
     Ti: .float 0.0
-    LR: .float 0.3
-    B: .float 0.90
+    LR: .float 0.5
+    B: .float 0.5
+    Bc: .float 1.0
     EP: .word 3
     i: .word 4
     _j: .word 2

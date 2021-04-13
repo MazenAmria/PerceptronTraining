@@ -14,6 +14,7 @@ fit:
   # EP: number of epochs (4-bytes integer)
   # LR: learning rate (float)
   # B: momentum (float)
+  # Bc: (1 - B) (float)
   # activation: the address of the activation function
   # ONE: constant (1.0 as float)
   # debugging messages
@@ -61,6 +62,10 @@ fit:
 
   sw $v0, 8($fp)                            # save E
 
+  la $t0, Bc
+  lw $t1, ONE
+  sw $t1, 0($t0)                            # set B = 0 for the first iteration
+
   sw $zero, 4($fp)                          # unsigned int e = 0
 
   j fit_e_check               
@@ -70,7 +75,7 @@ fit_e_body:
   sw $zero, 0($fp)                          # unsigned int _i = 0
   j fit_i_check               
 
-fit_i_body:               
+fit_i_body: 
 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes address
@@ -115,29 +120,24 @@ fit_i_body:
   jal debug_vector                
 
   lw $a0, 8($fp)                            # pass E
+  lw $a1, 12($fp)                           # pass Y
+  lw $a2, k                                 # pass k
+  jal assign_vector               
+
+  lw $a0, 8($fp)                            # pass E (= Y) 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes address
   lw $t1, Yd                                # load the desired output matrix (Yd)
   addu $t0, $t1, $t0                        # calculate the address
   lw $a1, 0($t0)                            # pass Yd[_i]
-  lw $a2, k                                 # pass k
-  jal assign_vector               
-
-  lw $a0, 8($fp)                            # pass E (= Yd) 
-  lw $a1, 12($fp)                           # pass Y
-  jal sub_vector                            # E = Yd - Y
+  jal sub_vector                            # E = Y - Yd
 
   lw $a0, 8($fp)                            # pass E
   lw $a1, k                                 # pass k
   la $a2, ERROR                             # pass the message
-  jal debug_vector                
-
-  lw $a0, 8($fp)                            # pass E
-  lw $a1, LR                                # pass LR
-  lw $a2, k                                 # pass k
-  jal scale_vector                
+  jal debug_vector                              
                
-  lw $a0, 8($fp)                            # pass E (scaled) (k size)
+  lw $a0, 8($fp)                            # pass E (k size)
   lw $a1, 12($fp)                           # pass Y (j size)
   lw $a2, 20($fp)                           # pass dC (kxj size)
   lw $a3, k                                 # pass k
@@ -150,6 +150,12 @@ fit_i_body:
   lw $a2, _j                                # pass j
   la $a3, WABS_CHANGE                       # pass the message
   jal debug_matrix                
+
+  lw $a0, 20($fp)                           # pass dC
+  lw $a1, Bc                                # pass (1 - B)
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal scale_matrix   
 
   lw $a0, 24($fp)                           # pass dW
   lw $a1, B                                 # pass B
@@ -167,13 +173,19 @@ fit_i_body:
   lw $a1, k                                 # pass k
   lw $a2, _j                                # pass j
   la $a3, WCHANGE                           # pass the message
-  jal debug_matrix                
+  jal debug_matrix
+
+  lw $a0, 24($fp)                           # pass dW
+  lw $a1, LR                                # pass LR
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal scale_matrix                  
 
   lw $a0, W                                 # pass W
   lw $a1, 24($fp)                           # pass dW
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
-  jal add_matrix                
+  jal sub_matrix                
 
   lw $a0, W                                 # pass W
   lw $a1, k                                 # pass k
@@ -184,10 +196,15 @@ fit_i_body:
   lw $a0, 16($fp)                           # pass dT
   lw $a1, B                                 # pass B
   lw $a2, k                                 # pass k
+  jal scale_vector
+
+  lw $a0, 8($fp)                            # pass E
+  lw $a1, Bc                                # pass (1 - B)
+  lw $a2, k                                 # pass k
   jal scale_vector                
 
   lw $a0, 16($fp)                           # pass dT
-  lw $a1, 8($fp)                            # pass E (scaled)
+  lw $a1, 8($fp)                            # pass E
   lw $a2, k                                 # pass k
   jal sub_vector                
 
@@ -196,10 +213,15 @@ fit_i_body:
   la $a2, TH_CHANGE                         # pass the message
   jal debug_vector                
 
+  lw $a0, 16($fp)                           # pass dT
+  lw $a1, LR                                # pass LR
+  lw $a2, k                                 # pass k
+  jal scale_vector  
+
   lw $a0, T                                 # pass T
   lw $a1, 16($fp)                           # pass dT
   lw $a2, k                                 # pass k
-  jal add_vector                
+  jal sub_vector                
 
   lw $a0, T                                 # pass T
   lw $a1, k                                 # pass k
@@ -208,7 +230,15 @@ fit_i_body:
 
   lw $t0, 0($fp)                
   addiu $t0, $t0, 1               
-  sw $t0, 0($fp)                            # _i++                
+  sw $t0, 0($fp)                            # _i++
+
+  la $t0, Bc
+  la $t1, ONE
+  l.s $f0, 0($t1)
+  la $t1, B
+  l.s $f2, 0($t1)
+  sub.s $f0, $f0, $f2
+  s.s $f0, 0($t0)                           # Bc = 1 - B              
 
 fit_i_check:   
 
