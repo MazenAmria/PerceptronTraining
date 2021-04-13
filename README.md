@@ -4,47 +4,49 @@ Training algorithm for single layer neural network using MIPS assembly language.
 The program uses linear algebra (matrices, vectors and thier operations) to implement the training algorithm.
 
 Symbols:
-* X: Input
-* W: Weight
-* T: Threshold
-* S: Weighted Sum
-* Y: Output
-* Yd: Desired Output
-* δ: Error
-* p: Iteration
-* ΔW: Needed Change in Weight
-* ΔT: Needed Change in Threshold
-* β: Momentum
-* α: Learning Rate
+* $x$: Input
+* $w$: Weight
+* $b$: Threshold/Bias
+* $s$: Weighted Sum
+* $y$: Output
+* $y_d$: Desired Output
+* $\delta$: Error
+* $\Delta w$: Needed Change in Weight
+* $\Delta b$: Needed Change in Threshold
+* $\beta$: Momentum
+* $\alpha$: Learning Rate
 
 ## Transform
 First we have the transform algorithm, which is used to transform the input vector (feature vector) into the output vector (classes vector) using the weights matrix as the change of bases matrix and then applying the activation function on the output vector. (i.e. predicts the classes given the features).
 
 Starting by calculating the weighted sum of the neurons (by linearly transforming the feature vector with the weigths matrix and then subtracting the threshlods).
-
-![transform1](/figures/transform1.png)
-
+```math
+w \cdot x + b \cdot \left[ -1 \right] = s
+```
 Then we can apply the chosen activation function to the weighted sum in order to get the output of the transformation. The program allows you to define your own activation function as a function and then reference it with the training model and it'll be used for this stage. Also applying the activation function on the whole vector allowed us to implement both single neuron and multi neuron activation functions. In the perceptron module you'll find two built-in activation functions, one is the hard limitter which is a single neuron activation function that returns 1 when the weighted sum is positive and 0 otherwise, and the other is the maximum weighted sum which is a multi neuron activation function that returns 1 for the neuron with maximum weghted sum and 0 for the other neurons.
-
-![transform2](/figures/transform2.png)
-
+```math
+y = activation\left( s \right)
+```
 ## Fit
 In this part the weights matrix and the threshlods vector will be modified to reduce the error in the prediction. It iterates over the dataset, and in each iteration it will do the following for the corresponding data tuple:
 * Transforms the feature vector using the existing model.
 * Calculating the error between the desired output and the given output.
-
-![fit1](/figures/fit1.png)
-
+```math
+\delta_{k} = y_{k} - {y_d}_{k}
+```
 * Calculating the needed change in the weights and the needed change in the thresholds.
-
-![fit2](/figures/fit2.png)
-![fit3](/figures/fit3.png)
-
+```math
+\Delta w_{kj} \gets \beta \Delta w_{kj} + \left( 1 - \beta \right)\frac{\partial L_{k}}{\partial w_{kj}} \\
+\Delta w \gets \beta \Delta w + \left( 1 - \beta \right)\delta \cdot x^T \\
+\Delta b_{k} \gets \beta \Delta b_{k} + \left( 1 - \beta \right)\frac{\partial L_{k}}{\partial b_{k}} \\
+\Delta b \gets \beta \Delta b + \left( 1 - \beta \right)\delta \cdot \left[ -1 \right] ^T \\
+\Delta b \gets \beta \Delta b - \left( 1 - \beta \right)\delta
+```
 * Applying the Changes
-
-![fit4](/figures/fit4.png)
-![fit5](/figures/fit5.png)
-
+```math
+w \gets w - \alpha \Delta w \\
+b \gets b - \alpha \Delta b
+```
 The algorithm iterates over the entire dataset in one epoch, if more than one epoch are given it will re-iterate over the entire dataset as many epochs as the are.
 
 ## Program Modules
