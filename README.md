@@ -14,7 +14,7 @@ Symbols:
 - $y_d$: Desired Output
 - $\delta$: Error
 - $\Delta w$: Needed Change in Weight
-- $\Delta b$: Needed Change in Threshold
+- $\Delta b$: Needed Change in Threshold/Bias
 - $\beta$: Momentum
 - $\alpha$: Learning Rate
 
@@ -24,15 +24,15 @@ First we have the transform algorithm, which is used to transform the input vect
 
 Starting by calculating the weighted sum of the neurons (by linearly transforming the feature vector with the weigths matrix and then subtracting the threshlods).
 
-```math
-w \cdot x + b \cdot \left[ -1 \right] = s
-```
+$$
+w_{k×j} \cdot x_{j} + b_{k} \cdot \left[ -1 \right] = s_{k}
+$$
 
 Then we can apply the chosen activation function to the weighted sum in order to get the output of the transformation. The program allows you to define your own activation function as a function and then reference it with the training model and it'll be used for this stage. Also applying the activation function on the whole vector allowed us to implement both single neuron and multi neuron activation functions. In the perceptron module you'll find two built-in activation functions, one is the hard limitter which is a single neuron activation function that returns 1 when the weighted sum is positive and 0 otherwise, and the other is the maximum weighted sum which is a multi neuron activation function that returns 1 for the neuron with maximum weghted sum and 0 for the other neurons.
 
-```math
-y = activation\left( s \right)
-```
+$$
+y_{k} = activation\left( s_{k} \right)
+$$
 
 ## Fit
 
@@ -41,26 +41,38 @@ In this part the weights matrix and the threshlods vector will be modified to re
 - Transforms the feature vector using the existing model.
 - Calculating the error between the desired output and the given output.
 
-```math
+$$
 \delta_{k} = y_{k} - {y_d}_{k}
-```
+$$
 
 - Calculating the needed change in the weights and the needed change in the thresholds.
 
-```math
-\Delta w_{kj} \gets \beta \Delta w_{kj} + \left( 1 - \beta \right)\frac{\partial L_{k}}{\partial w_{kj}} \\
-\Delta w \gets \beta \Delta w + \left( 1 - \beta \right)\delta \cdot x^T \\
-\Delta b_{k} \gets \beta \Delta b_{k} + \left( 1 - \beta \right)\frac{\partial L_{k}}{\partial b_{k}} \\
-\Delta b \gets \beta \Delta b + \left( 1 - \beta \right)\delta \cdot \left[ -1 \right] ^T \\
-\Delta b \gets \beta \Delta b - \left( 1 - \beta \right)\delta
-```
+$$
+\Delta w_{\hat{k} \hat{j}} \gets \beta \Delta w_{\hat{k} \hat{j}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial w_{\hat{k} \hat{j}}}
+$$
+
+$$
+\Delta w_{k×j} \gets \beta \Delta w_{k×j} + \left( 1 - \beta \right)\delta_{k} \cdot x_{j}^T
+$$
+
+$$
+\Delta b_{\hat{k}} \gets \beta \Delta b_{\hat{k}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial b_{\hat{k}}}
+$$
+
+$$
+\Delta b_{k} \gets \beta \Delta b_{k} + \left( 1 - \beta \right)\delta_{k} \cdot \left[ -1 \right] ^T
+$$
+
+$$
+\Delta b_{k} \gets \beta \Delta b_{k} - \left( 1 - \beta \right)\delta_{k}
+$$
 
 - Applying the Changes
 
-```math
-w \gets w - \alpha \Delta w \\
-b \gets b - \alpha \Delta b
-```
+$$
+w_{k×j} \gets w_{k×j} - \alpha \Delta w_{k×j} \\
+b_{k} \gets b_{k} - \alpha \Delta b_{k}
+$$
 
 The algorithm iterates over the entire dataset in one epoch, if more than one epoch are given it will re-iterate over the entire dataset as many epochs as the are.
 
