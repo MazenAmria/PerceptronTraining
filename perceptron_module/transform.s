@@ -32,11 +32,6 @@ transform:
                   
   lw $a0, 16($fp)                           # pass Y
   lw $a1, k                                 # pass k
-  la $a2, PRE_ACTV                          # pass the title
-  jal debug_vector                          # prints the output before the activation
-                  
-  lw $a0, 16($fp)                           # pass Y
-  lw $a1, k                                 # pass k
   lw $t0, activation               
   jalr $t0                                  # activation(Y)
 

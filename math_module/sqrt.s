@@ -29,3 +29,4 @@ sqrt:
   lw $fp, 0($sp)
   addiu $sp, $sp, 8                         # free the stack
   jr  $ra                                   # return
+

@@ -14,59 +14,119 @@ fit:
   # EP: number of epochs (4-bytes integer)
   # LR: learning rate (float)
   # B: momentum (float)
-  # Bc: (1 - B) (float)
   # activation: the address of the activation function
   # ONE: constant (1.0 as float)
   # debugging messages
   # Result:
   # W and T are trained properly to fit the data
 
-  addiu $sp, $sp, -36
-  sw $ra, 32($sp)                           # save $ra
-  sw $fp, 28($sp)               
-  move $fp, $sp               
+  addiu $sp, $sp, -68
+  sw $ra, 64($sp)                           # save $ra
+  sw $fp, 60($sp)               
+  move $fp, $sp
+
+  lw $a0, k                                 # pass k
+  jal allocate_vector               
+
+  sw $v0, 56($fp)                           # save Y
+
+  lw $a0, k                                 # pass k
+  jal allocate_vector               
+
+  sw $v0, 52($fp)                           # save E                  
 
   lw $a0, k                                 # load k
   lw $a1, _j                                # load j
   jal allocate_matrix               
 
-  sw $v0, 24($fp)                           # save dW
+  sw $v0, 48($fp)                           # save dC
+
+  lw $t1, ONE
+  sw $t1, 44($fp)                           # Bc = 1.0 for the first iteration
+
+  lw $a0, k                                 # load k
+  lw $a1, _j                                # load j
+  jal allocate_matrix  
+
+  sw $v0, 40($fp)                           # save dW
   move $a0, $v0                             # pass dW
   lw $a1, k                                 # pass k
   lw $a2, _j                                # pass _j
   move $a3, $zero                           # pass 0
-  jal fill_matrix               
+  jal fill_matrix                           # dW = 0         
+
+  lw $a0, k                                 # pass k
+  jal allocate_vector               
+
+  sw $v0, 36($fp)                           # save dT
+  move $a0, $v0                             # pass dT
+  lw $a1, k                                 # pass k
+  move $a2, $zero                           # pass 0
+  jal fill_vector                           # dT = 0
 
   lw $a0, k                                 # load k
   lw $a1, _j                                # load j
-  jal allocate_matrix               
+  jal allocate_matrix  
 
-  sw $v0, 20($fp)                           # save dC
-
-  lw $a0, k                                 # pass k
-  jal allocate_vector               
-
-  sw $v0, 16($fp)                           # save dT
-  move $a0, $v0                             # pass dT
+  sw $v0, 32($fp)                           # save sdW2
+  move $a0, $v0                             # pass sdW2
   lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass _j
   move $a3, $zero                           # pass 0
-  jal fill_vector               
+  jal fill_matrix                           # sdW2 = 0    
 
   lw $a0, k                                 # pass k
   jal allocate_vector               
 
-  sw $v0, 12($fp)                           # save Y
+  sw $v0, 28($fp)                           # save sdT2
+  move $a0, $v0                             # pass sdT2
+  lw $a1, k                                 # pass k
+  move $a2, $zero                           # pass 0
+  jal fill_vector                           # sdT2 = 0 
+
+  sw $zero, 24($fp)                         # float n = 0
+
+  lw $a0, k                                 # load k
+  lw $a1, _j                                # load j
+  jal allocate_matrix  
+  sw $v0, 20($fp)                           # save rmsW  
+
+  lw $a0, k                                 # pass k
+  jal allocate_vector               
+  sw $v0, 16($fp)                           # save rmsT
+
+  lw $a0, k                                 # load k
+  lw $a1, _j                                # load j
+  jal allocate_matrix  
+
+  sw $v0, 12($fp)                           # save lrW
+  move $a0, $v0                             # pass lrW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass _j
+  lw $a3, LR                                # pass LR
+  jal fill_matrix                           # lrW = LR    
 
   lw $a0, k                                 # pass k
   jal allocate_vector               
 
-  sw $v0, 8($fp)                            # save E
-
-  la $t0, Bc
-  lw $t1, ONE
-  sw $t1, 0($t0)                            # set B = 0 for the first iteration
+  sw $v0, 8($fp)                            # save lrT
+  move $a0, $v0                             # pass lrT
+  lw $a1, k                                 # pass k
+  lw $a2, LR                                # pass LR
+  jal fill_vector                           # lrT = LR
 
   sw $zero, 4($fp)                          # unsigned int e = 0
+
+  addiu $sp, $sp, -8
+
+  lw $a0, k                                 # load k
+  lw $a1, _j                                # load j
+  jal allocate_matrix  
+  sw $v0, -4($fp)                           # save dW2  
+
+  lw $a0, k                                 # pass k
+  jal allocate_vector               
+  sw $v0, -8($fp)                           # save dT2
 
   j fit_e_check               
 
@@ -77,54 +137,25 @@ fit_e_body:
 
 fit_i_body: 
 
-  lw $t0, 0($fp)                            # load _i
-  sll $t0, $t0, 2                           # convert to bytes address
-  lw $t1, X                                 # load the inputs matrix (X)
-  addu $t0, $t1, $t0                        # calculate the address
-  lw $a0, 0($t0)                            # pass X[_i]
-  lw $a1, _j                                # pass j
-  la $a2, INPUT                             # pass the message
-  jal debug_vector                
-
-  lw $a0, W                                 # pass W
-  lw $a1, k                                 # pass k
-  lw $a2, _j                                # pass j
-  la $a3, WEIGHTS_BEFORE                    # pass the message
-  jal debug_matrix                
-
-  lw $a0, T                                 # pass T
-  lw $a1, k                                 # pass k
-  la $a2, THRESHOLDS_BEFORE                 # pass the message
-  jal debug_vector                
+  l.s $f0, 24($fp)
+  l.s $f2, ONE
+  add.s $f0, $f0, $f2
+  s.s $f0, 24($fp)                          # n++                             
 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes address
   lw $t1, X                                 # load the inputs matrix (X)
   addu $t0, $t1, $t0                        # calculate the address
   lw $a0, 0($t0)                            # pass X[_i]
-  lw $a1, 12($fp)                           # pass Y
-  jal transform               
+  lw $a1, 56($fp)                           # pass Y
+  jal transform                                           
 
-  lw $a0, 12($fp)                           # pass Y
-  lw $a1, k                                 # pass k
-  la $a2, POST_ACTV                         # pass the message
-  jal debug_vector                
-
-  lw $t0, 0($fp)                            # load _i
-  sll $t0, $t0, 2                           # convert to bytes address
-  lw $t1, Yd                                # load the desired output matrix (Yd)
-  addu $t0, $t1, $t0                        # calculate the address
-  lw $a0, 0($t0)                            # pass Yd[_i]
-  lw $a1, k                                 # pass k
-  la $a2, DESIRED                           # pass the message
-  jal debug_vector                
-
-  lw $a0, 8($fp)                            # pass E
-  lw $a1, 12($fp)                           # pass Y
+  lw $a0, 52($fp)                           # pass E
+  lw $a1, 56($fp)                           # pass Y
   lw $a2, k                                 # pass k
   jal assign_vector               
 
-  lw $a0, 8($fp)                            # pass E (= Y) 
+  lw $a0, 56($fp)                           # pass E (= Y) 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes address
   lw $t1, Yd                                # load the desired output matrix (Yd)
@@ -132,57 +163,89 @@ fit_i_body:
   lw $a1, 0($t0)                            # pass Yd[_i]
   jal sub_vector                            # E = Y - Yd
 
-  lw $a0, 8($fp)                            # pass E
+  lw $a0, 56($fp)                           # pass E
   lw $a1, k                                 # pass k
   la $a2, ERROR                             # pass the message
   jal debug_vector                              
                
-  lw $a0, 8($fp)                            # pass E (k size)
-  lw $a1, 12($fp)                           # pass Y (j size)
-  lw $a2, 20($fp)                           # pass dC (kxj size)
+  lw $a0, 56($fp)                           # pass E (k size)
+  lw $a1, 52($fp)                           # pass Y (j size)
+  lw $a2, 48($fp)                           # pass dC (kxj size)
   lw $a3, k                                 # pass k
   lw $t0, _j               
   sw $t0, -4($sp)                           # pass j
-  jal vector_cross                
+  jal vector_cross                            
 
-  lw $a0, 20($fp)                           # pass dC
-  lw $a1, k                                 # pass k
-  lw $a2, _j                                # pass j
-  la $a3, WABS_CHANGE                       # pass the message
-  jal debug_matrix                
-
-  lw $a0, 20($fp)                           # pass dC
-  lw $a1, Bc                                # pass (1 - B)
+  lw $a0, 48($fp)                           # pass dC
+  lw $a1, 44($fp)                           # pass (1 - B)
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal scale_matrix   
 
-  lw $a0, 24($fp)                           # pass dW
+  lw $a0, 40($fp)                           # pass dW
   lw $a1, B                                 # pass B
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal scale_matrix                
 
-  lw $a0, 24($fp)                           # pass dW
-  lw $a1, 20($fp)                           # pass dC
+  lw $a0, 40($fp)                           # pass dW
+  lw $a1, 48($fp)                           # pass dC
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal add_matrix                
 
-  lw $a0, 24($fp)                           # pass dW
-  lw $a1, k                                 # pass k
-  lw $a2, _j                                # pass j
-  la $a3, WCHANGE                           # pass the message
-  jal debug_matrix
-
-  lw $a0, 24($fp)                           # pass dW
-  lw $a1, LR                                # pass LR
+  lw $a0, -4($fp)                           # pass dW2
+  lw $a1, 40($fp)                           # pass dW
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
-  jal scale_matrix                  
+  jal assign_matrix
+
+  lw $a0, -4($fp)                           # pass dW2
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  jal square_matrix
+
+  lw $a0, 32($fp)                           # pass sdW2
+  lw $a1, -4($fp)                           # pass dW2
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal add_matrix
+
+  lw $a0, 20($fp)                           # pass rmsW
+  lw $a1, 32($fp)                           # pass sdW2
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal assign_matrix
+
+  l.s $f0, 24($fp)                          # load n
+  l.s $f2, ONE                              # load 1.0
+  div.s $f0, $f2, $f0                       # $f0 = 1.0 / n
+
+  lw $a0, 20($fp)                           # pass rmsW
+  mfc1 $a1, $f0                             # pass 1.0 / n
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal scale_matrix
+
+  lw $a0, 20($fp)                           # pass rmsW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  jal sqrt_matrix
+
+  lw $a0, 12($fp)                           # pass lrW
+  lw $a1, 20($fp)                           # pass rmsW
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal div_matrix
+
+  lw $a0, 40($fp)                           # pass dW
+  lw $a1, 12($fp)                           # pass lrW
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal mul_matrix                  
 
   lw $a0, W                                 # pass W
-  lw $a1, 24($fp)                           # pass dW
+  lw $a1, 40($fp)                           # pass dW
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal sub_matrix                
@@ -190,55 +253,95 @@ fit_i_body:
   lw $a0, W                                 # pass W
   lw $a1, k                                 # pass k
   lw $a2, _j                                # pass j
-  la $a3, WEIGHTS_AFTER                     # pass the message
-  jal debug_matrix                
+  la $a3, WEIGHTS                           # pass the message
+  jal debug_matrix  
 
-  lw $a0, 16($fp)                           # pass dT
+  lw $a0, 12($fp)                           # pass lrW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass j
+  la $a3, WEIGHTS_LR                        # pass the message
+  jal debug_matrix               
+
+  lw $a0, 36($fp)                           # pass dT
   lw $a1, B                                 # pass B
   lw $a2, k                                 # pass k
   jal scale_vector
 
-  lw $a0, 8($fp)                            # pass E
-  lw $a1, Bc                                # pass (1 - B)
+  lw $a0, 52($fp)                           # pass E
+  lw $a1, 44($fp)                           # pass (1 - B)
   lw $a2, k                                 # pass k
   jal scale_vector                
 
-  lw $a0, 16($fp)                           # pass dT
-  lw $a1, 8($fp)                            # pass E
+  lw $a0, 36($fp)                           # pass dT
+  lw $a1, 52($fp)                           # pass E
   lw $a2, k                                 # pass k
   jal sub_vector                
 
-  lw $a0, 16($fp)                           # pass dT
-  lw $a1, k                                 # pass k
-  la $a2, TH_CHANGE                         # pass the message
-  jal debug_vector                
-
-  lw $a0, 16($fp)                           # pass dT
-  lw $a1, LR                                # pass LR
+  lw $a0, -8($fp)                           # pass dT2
+  lw $a1, 36($fp)                           # pass dT
   lw $a2, k                                 # pass k
-  jal scale_vector  
+  jal assign_vector
+
+  lw $a0, -8($fp)                           # pass dT2
+  lw $a1, k                                 # pass k
+  jal square_vector
+
+  lw $a0, 28($fp)                           # pass sdT2
+  lw $a1, -8($fp)                           # pass dT2
+  lw $a2, k                                 # pass k
+  jal add_vector
+
+  lw $a0, 16($fp)                           # pass rmsW
+  lw $a1, 28($fp)                           # pass sdW2
+  lw $a2, k                                 # pass k
+  jal assign_vector
+
+  l.s $f0, 24($fp)                          # load n
+  l.s $f2, ONE                              # load 1.0
+  div.s $f0, $f2, $f0                       # $f0 = 1.0 / n
+
+  lw $a0, 16($fp)                           # pass rmsW
+  mfc1 $a1, $f0                             # pass 1.0 / n
+  lw $a2, k                                 # pass k
+  jal scale_vector
+
+  lw $a0, 16($fp)                           # pass rmsW
+  lw $a1, k                                 # pass k
+  jal sqrt_vector
+
+  lw $a0, 8($fp)                            # pass lrW
+  lw $a1, 16($fp)                           # pass rmsW
+  lw $a2, k                                 # pass k
+  jal div_vector         
+
+  lw $a0, 36($fp)                           # pass dT
+  lw $a1, 8($fp)                            # pass lrT
+  lw $a2, k                                 # pass k
+  jal mul_vector  
 
   lw $a0, T                                 # pass T
-  lw $a1, 16($fp)                           # pass dT
+  lw $a1, 36($fp)                           # pass dT
   lw $a2, k                                 # pass k
   jal sub_vector                
 
   lw $a0, T                                 # pass T
   lw $a1, k                                 # pass k
-  la $a2, THRESHOLDS_AFTER                  # pass the message
-  jal debug_vector                
+  la $a2, THRESHOLDS                        # pass the message
+  jal debug_vector
+
+  lw $a0, 8($fp)                            # pass lrT
+  lw $a1, k                                 # pass k
+  la $a2, THRESHOLDS_LR                     # pass the message
+  jal debug_vector           
 
   lw $t0, 0($fp)                
   addiu $t0, $t0, 1               
   sw $t0, 0($fp)                            # _i++
 
-  la $t0, Bc
-  la $t1, ONE
-  l.s $f0, 0($t1)
-  la $t1, B
-  l.s $f2, 0($t1)
+  l.s $f0, ONE
+  l.s $f2, B
   sub.s $f0, $f0, $f2
-  s.s $f0, 0($t0)                           # Bc = 1 - B              
+  s.s $f0, 44($fp)                          # Bc = 1 - B              
 
 fit_i_check:   
 
@@ -259,8 +362,8 @@ fit_e_check:
   bne $t0, $zero, fit_e_body                # continue
   # else                
   move $sp, $fp               
-  lw $fp, 28($sp)               
-  lw $ra, 32($sp)                           # pop the return address
-  addiu $sp, $sp, 36                        # free the stack
+  lw $fp, 60($sp)               
+  lw $ra, 64($sp)                           # pop the return address
+  addiu $sp, $sp, 68                        # free the stack
   jr $ra                                    # return
 

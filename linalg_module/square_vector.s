@@ -37,4 +37,5 @@ square_vector_i_check:
   move $sp, $fp
   lw $fp, 4($sp)
   addiu $sp, $sp, 16                        # free the stack
-  jr  $ra                                   # return
+  jr $ra                                    # return
+
