@@ -24,8 +24,8 @@ assign_vector_i_body:
 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes offset
-  lw $a0, 8($fp)                            # load dest
-  addu $t0, $a0, $t0                        # calculate the address
+  lw $t2, 8($fp)                            # load dest
+  addu $t0, $t2, $t0                        # calculate the address
 
   lw $t2, 0($t1)                            # T = src[_i]
   sw $t2, 0($t0)                            # dest[_i] = T
