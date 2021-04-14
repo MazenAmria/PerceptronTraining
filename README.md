@@ -17,6 +17,7 @@ Symbols:
 - $\Delta b$: Needed Change in Threshold/Bias
 - $\beta$: Momentum
 - $\alpha$: Learning Rate
+- $t$: number of passed iterations
 
 ## Transform
 
@@ -67,11 +68,29 @@ $$
 \Delta b_{k} \gets \beta \Delta b_{k} - \left( 1 - \beta \right)\delta_{k}
 $$
 
+- Calculating the new learning rates using AdaGrad
+
+$$
+\sigma_{\hat{k} \hat{j}}^t = \sqrt{\frac{\sum {\Delta w_{\hat{k} \hat{j}}}^2}{t}}
+$$
+
+$$
+\sigma_{\hat{k}}^t = \sqrt{\frac{\sum {\Delta b_{\hat{k}}}^2}{t}}
+$$
+
+$$
+\alpha_{\hat{k} \hat{j}} \gets \frac{\alpha_{\hat{k} \hat{j}}}{\sigma_{\hat{k}}^t}
+$$
+
+$$
+\alpha_{\hat{k}} \gets \frac{\alpha_{\hat{k}}}{\sigma_{\hat{k} \hat{j}}^t}
+$$
+
 - Applying the Changes
 
 $$
-w_{k×j} \gets w_{k×j} - \alpha \Delta w_{k×j} \\
-b_{k} \gets b_{k} - \alpha \Delta b_{k}
+w_{k×j} \gets w_{k×j} - \alpha_{k×j} \Delta w_{k×j} \\
+b_{k} \gets b_{k} - \alpha_{k} \Delta b_{k}
 $$
 
 The algorithm iterates over the entire dataset in one epoch, if more than one epoch are given it will re-iterate over the entire dataset as many epochs as the are.
@@ -80,6 +99,7 @@ The algorithm iterates over the entire dataset in one epoch, if more than one ep
 
 The program consists of three modules:
 
+- `math_module` which contains some math utilities, basically a `sqrt` function that calculated the square root of a float number.
 - `linalg_module` which contains all the functions needed to perform linear algebra operations. (Note: the function `vector_cross` has different definition than the original vector cross multiplication).
 - `debug_module` which is used to debug a vector/matrix with a fancy output and a title message.
 - `perceptron_module` which contains the `fit` and `transform` functions and the built-in activation functions.
@@ -92,8 +112,8 @@ The program starts by asking the user for some values and the input file. Refer 
 
 We uses some basic conventions that the GCC compiler uses when compiling to MIPS assembly:
 
-- Call stack and Frames by making use of the $fp and $sp registers.
-- Local variables, passed arguments (that doesn't fit in $ax registers), returned values (that doesn't fit in $v registers) are stored in the frame of the function.
+- Call stack and Frames by making use of the `$fp` and `$sp` registers.
+- Local variables, passed arguments (that doesn't fit in `$ax` registers), returned values (that doesn't fit in `$vx` registers) are stored in the frame of the function.
 
 ![call-stack](./figures/call-stack.jpg)
 
@@ -123,3 +143,8 @@ check_condition:
 Some of the comments contain the equivalent C code of the written MIPS assembly.
 
 Each module has it's own testcase that covers the basic functionality of the module. Refer to the bash scripts located at `testcases` to generate the `main.s` file that contains that testcase.
+
+## Future Work
+
+- Add the trigonometric functions and the exponential function to `math_module`.
+- Implement more activation functions (like `sigmoid`).
