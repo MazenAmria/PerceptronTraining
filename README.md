@@ -6,18 +6,18 @@ The program uses linear algebra (matrices, vectors and thier operations) to impl
 
 Symbols:
 
-- $x$: Input
-- $w$: Weight
-- $b$: Threshold/Bias
-- $s$: Weighted Sum
-- $y$: Output
-- $y_d$: Desired Output
-- $\delta$: Error
-- $\Delta w$: Needed Change in Weight
-- $\Delta b$: Needed Change in Threshold/Bias
-- $\beta$: Momentum
-- $\alpha$: Learning Rate
-- $t$: number of passed iterations
+- $`x`$: Input
+- $`w`$: Weight
+- $`b`$: Threshold/Bias
+- $`s`$: Weighted Sum
+- $`y`$: Output
+- $`y_d`$: Desired Output
+- $`\delta`$: Error
+- $`\Delta w`$: Needed Change in Weight
+- $`\Delta b`$: Needed Change in Threshold/Bias
+- $`\beta`$: Momentum
+- $`\alpha`$: Learning Rate
+- $`t`$: number of passed iterations
 
 ## Transform
 
