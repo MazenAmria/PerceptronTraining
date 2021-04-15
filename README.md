@@ -17,6 +17,7 @@ Symbols:
 - $`\Delta b`$: Needed Change in Threshold/Bias
 - $`\beta`$: Momentum
 - $`\alpha`$: Learning Rate
+- $`\sigma`$: RMS of the Change in Weights or Thresholds/Bias
 - $`t`$: number of passed iterations
 
 ## Transform
