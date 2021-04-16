@@ -87,9 +87,9 @@ The algorithm iterates over the entire dataset in one epoch, if more than one ep
 
 The program consists of three modules:
 
-- `math_module` which contains some math utilities, basically a `sqrt` function that calculated the square root of a float number.
+- `math_module` which contains some math utilities, basically a `sqrt` function that calculated the square root of a float number and a `pow_int` function that uses binary exponentiation to calculate the result of raising an integer to another integer power.
 - `linalg_module` which contains all the functions needed to perform linear algebra operations. (Note: the function `vector_cross` has different definition than the original vector cross multiplication).
-- `debug_module` which is used to debug a vector/matrix with a fancy output and a title message.
+- `io_module` which contains all the functions needed to read data, parse it, store it in memory and some other functions for printing and debugging the vectors/matrices in readable way.
 - `perceptron_module` which contains the `fit` and `transform` functions and the built-in activation functions.
 
 Using these modules requires some predefined variables in `.data` section, refer `.data` section in `perceptron_module_test.s` for usage example.

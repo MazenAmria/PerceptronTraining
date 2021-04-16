@@ -181,13 +181,12 @@ main:
   jal debug_vector
 
   # transform X with W
-  addiu $sp, $sp, -4
   la $a0, X
   la $a1, W
   la $a2, Y
   li $a3, 3
   li $t0, 2
-  sw $t0, 0($sp)
+  sw $t0, -4($sp)
   jal linear_transform
 
   # debug Y
@@ -204,13 +203,12 @@ main:
   sw $v0, 0($t0)
 
   # cross X and Y
-  addiu $sp, $sp, -4
   la $a0, X
   la $a1, Y
   lw $a2, XY
   li $a3, 2
   li $t0, 3
-  sw $t0, 0($sp)
+  sw $t0, -4($sp)
   jal vector_cross
 
   # debug XY

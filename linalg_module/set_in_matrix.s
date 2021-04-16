@@ -7,7 +7,7 @@ set_in_matrix:
   # $a2: _j (4-bytes integer)
   # $a3: value (4-bytes float)
 
-  addiu $sp, $sp, -20
+  addiu $sp, $sp, -24
   sw $ra, 4($sp)
   sw $fp, 0($sp)
   move $fp, $sp
@@ -30,6 +30,6 @@ set_in_matrix:
   move $sp, $fp                 
   lw $ra, 4($sp)                  
   lw $fp, 0($sp)                  
-  addiu $sp, $sp, 20                        # free the stack
+  addiu $sp, $sp, 24                        # free the stack
   jr $ra                                    # return
 

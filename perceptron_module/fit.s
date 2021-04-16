@@ -99,21 +99,12 @@ fit:
   lw $a1, _j                                # load j
   jal allocate_matrix  
 
-  sw $v0, 12($fp)                           # save lrW
-  move $a0, $v0                             # pass lrW
-  lw $a1, k                                 # pass k
-  lw $a2, _j                                # pass _j
-  lw $a3, LR                                # pass LR
-  jal fill_matrix                           # lrW = LR    
+  sw $v0, 12($fp)                           # save lrW   
 
   lw $a0, k                                 # pass k
   jal allocate_vector               
 
   sw $v0, 8($fp)                            # save lrT
-  move $a0, $v0                             # pass lrT
-  lw $a1, k                                 # pass k
-  lw $a2, LR                                # pass LR
-  jal fill_vector                           # lrT = LR
 
   sw $zero, 4($fp)                          # unsigned int e = 0
 
@@ -137,6 +128,17 @@ fit_e_body:
 
 fit_i_body: 
 
+  lw $a0, 12($fp)                           # pass lrW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass _j
+  lw $a3, LR                                # pass LR
+  jal fill_matrix                           # lrW = LR 
+
+  lw $a0, 8($fp)                            # pass lrT
+  lw $a1, k                                 # pass k
+  lw $a2, LR                                # pass LR
+  jal fill_vector                           # lrT = LR
+
   l.s $f0, 24($fp)
   l.s $f2, ONE
   add.s $f0, $f0, $f2
@@ -155,21 +157,39 @@ fit_i_body:
   lw $a2, k                                 # pass k
   jal assign_vector               
 
-  lw $a0, 56($fp)                           # pass E (= Y) 
+  lw $a0, 52($fp)                           # pass E (= Y) 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes address
   lw $t1, Yd                                # load the desired output matrix (Yd)
   addu $t0, $t1, $t0                        # calculate the address
   lw $a1, 0($t0)                            # pass Yd[_i]
-  jal sub_vector                            # E = Y - Yd
+  jal sub_vector                            # E = Y - Yd 
 
-  lw $a0, 56($fp)                           # pass E
+  lw $a0, 56($fp)                           # pass Y
+  lw $a1, k                                 # pass k
+  la $a2, PREDICTION                        # pass the message
+  jal debug_vector 
+
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, Yd                                # load the desired output matrix (Yd)
+  addu $t0, $t1, $t0                        # calculate the address
+  lw $a0, 0($t0)                            # pass Yd[_i]
+  lw $a1, k                                 # pass k
+  la $a2, DESIRED                           # pass the message
+  jal debug_vector 
+
+  lw $a0, 52($fp)                           # pass E
   lw $a1, k                                 # pass k
   la $a2, ERROR                             # pass the message
   jal debug_vector                              
                
-  lw $a0, 56($fp)                           # pass E (k size)
-  lw $a1, 52($fp)                           # pass Y (j size)
+  lw $a0, 52($fp)                           # pass E (k size)
+  lw $t0, 0($fp)                            # load _i
+  sll $t0, $t0, 2                           # convert to bytes address
+  lw $t1, X                                 # load the inputs matrix (X)
+  addu $t0, $t1, $t0                        # calculate the address
+  lw $a1, 0($t0)                            # pass X[_i] (j size)
   lw $a2, 48($fp)                           # pass dC (kxj size)
   lw $a3, k                                 # pass k
   lw $t0, _j               
