@@ -68,9 +68,9 @@ In this part the weights matrix and the threshlods vector will be modified to re
 
 \sigma_{\hat{k}}^t = \sqrt{\frac{\sum {\Delta b_{\hat{k}}}^2}{t}} \\
 
-\alpha_{\hat{k} \hat{j}} \gets \frac{\alpha_{\hat{k} \hat{j}}}{\sigma_{\hat{k}}^t} \\
+\alpha_{\hat{k} \hat{j}} = \frac{\alpha}{\sigma_{\hat{k}}^t} \\
 
-\alpha_{\hat{k}} \gets \frac{\alpha_{\hat{k}}}{\sigma_{\hat{k} \hat{j}}^t}
+\alpha_{\hat{k}} = \frac{\alpha}{\sigma_{\hat{k} \hat{j}}^t}
 ```
 
 - Applying the Changes
