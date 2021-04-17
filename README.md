@@ -50,34 +50,50 @@ In this part the weights matrix and the threshlods vector will be modified to re
 - Calculating the needed change in the weights and the needed change in the thresholds.
 
 ```math
-\Delta w_{\hat{k} \hat{j}} \gets \beta \Delta w_{\hat{k} \hat{j}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial w_{\hat{k} \hat{j}}} \\ \\
+\Delta w_{\hat{k} \hat{j}} \gets \beta \Delta w_{\hat{k} \hat{j}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial w_{\hat{k} \hat{j}}}
+```
 
-\Delta w_{k \times j} \gets \beta \Delta w_{k \times j} + \left( 1 - \beta \right)\delta_{k} \cdot x_{j}^T \\ \\
+```math
+\Delta w_{k \times j} \gets \beta \Delta w_{k \times j} + \left( 1 - \beta \right)\delta_{k} \cdot x_{j}^T
+```
 
-\Delta b_{\hat{k}} \gets \beta \Delta b_{\hat{k}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial b_{\hat{k}}} \\ \\
+```math
+\Delta b_{\hat{k}} \gets \beta \Delta b_{\hat{k}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial b_{\hat{k}}}
+```
 
-\Delta b_{k} \gets \beta \Delta b_{k} + \left( 1 - \beta \right)\delta_{k} \cdot \left[ -1 \right] ^T \\ \\
+```math
+\Delta b_{k} \gets \beta \Delta b_{k} + \left( 1 - \beta \right)\delta_{k} \cdot \left[ -1 \right] ^T
+```
 
+```math
 \Delta b_{k} \gets \beta \Delta b_{k} - \left( 1 - \beta \right)\delta_{k}
 ```
 
 - Calculating the new learning rates using AdaGrad
 
 ```math
-\sigma_{\hat{k} \hat{j}}^t = \sqrt{\frac{\sum {\Delta w_{\hat{k} \hat{j}}}^2}{t}} \\ \\
+\sigma_{\hat{k} \hat{j}}^t = \sqrt{\frac{\sum {\Delta w_{\hat{k} \hat{j}}}^2}{t}}
+```
 
-\sigma_{\hat{k}}^t = \sqrt{\frac{\sum {\Delta b_{\hat{k}}}^2}{t}} \\ \\
+```math
+\sigma_{\hat{k}}^t = \sqrt{\frac{\sum {\Delta b_{\hat{k}}}^2}{t}}
+```
 
-\alpha_{\hat{k} \hat{j}} = \frac{\alpha}{\sigma_{\hat{k}}^t} \\ \\
+```math
+\alpha_{\hat{k} \hat{j}} = \frac{\alpha}{\sigma_{\hat{k}}^t}
+```
 
+```math
 \alpha_{\hat{k}} = \frac{\alpha}{\sigma_{\hat{k} \hat{j}}^t}
 ```
 
 - Applying the Changes
 
 ```math
-w_{k \times j} \gets w_{k \times j} - \alpha_{k \times j} \Delta w_{k \times j} \\ \\
+w_{k \times j} \gets w_{k \times j} - \alpha_{k \times j} \Delta w_{k \times j}
+```
 
+```math
 b_{k} \gets b_{k} - \alpha_{k} \Delta b_{k}
 ```
 
