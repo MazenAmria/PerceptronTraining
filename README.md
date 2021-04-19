@@ -101,7 +101,7 @@ The algorithm iterates over the entire dataset in one epoch, if more than one ep
 
 ## Program Modules
 
-The program consists of three modules:
+The program consists of four modules:
 
 - `math_module` which contains some math utilities, basically a `sqrt` function that calculated the square root of a float number and a `pow_int` function that uses binary exponentiation to calculate the result of raising an integer to another integer power.
 - `linalg_module` which contains all the functions needed to perform linear algebra operations. (Note: the function `vector_cross` has different definition than the original vector cross multiplication).
