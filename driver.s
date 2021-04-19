@@ -20,6 +20,7 @@
     T: .word 0
     activation: .word 0
     ONE: .float 1.0
+	EPS: .float 0.000001
     BUFSIZ: .word 8192
     PREDICTION: .asciiz "The prediction of the model\n"
     DESIRED: .asciiz "The desired output\n" 

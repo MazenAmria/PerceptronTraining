@@ -16,13 +16,14 @@ fit:
   # B: momentum (float)
   # activation: the address of the activation function
   # ONE: constant (1.0 as float)
+  # EPS: constant (1e-6 as float)
   # debugging messages
   # Result:
   # W and T are trained properly to fit the data
 
-  addiu $sp, $sp, -72
-  sw $ra, 68($sp)                           # save $ra
-  sw $fp, 64($sp)               
+  addiu $sp, $sp, -80
+  sw $ra, 76($sp)                           # save $ra
+  sw $fp, 72($sp)               
   move $fp, $sp
 
   lw $a0, k                                 # pass k
@@ -64,8 +65,8 @@ fit:
   move $a2, $zero                           # pass 0
   jal fill_vector                           # dT = 0
 
-  lw $a0, k                                 # load k
-  lw $a1, _j                                # load j
+  lw $a0, k                                 # pass k
+  lw $a1, _j                                # pass j
   jal allocate_matrix  
 
   sw $v0, 32($fp)                           # save sdW2
@@ -76,6 +77,17 @@ fit:
   jal fill_matrix                           # sdW2 = 0    
 
   lw $a0, k                                 # pass k
+  lw $a1, _j                                # pass j
+  jal allocate_matrix                
+
+  sw $v0, 64($fp)                           # save epsW
+  move $a0, $v0                             # pass epsW
+  lw $a1, k                                 # pass k
+  lw $a2, _j                                # pass k
+  lw $a3, EPS                               # pass EPS
+  jal fill_matrix                           # epsT = EPS 
+
+  lw $a0, k                                 # pass k
   jal allocate_vector               
 
   sw $v0, 28($fp)                           # save sdT2
@@ -83,6 +95,15 @@ fit:
   lw $a1, k                                 # pass k
   move $a2, $zero                           # pass 0
   jal fill_vector                           # sdT2 = 0 
+
+  lw $a0, k                                 # pass k
+  jal allocate_vector               
+
+  sw $v0, 68($fp)                           # save epsT
+  move $a0, $v0                             # pass epsT
+  lw $a1, k                                 # pass k
+  lw $a2, EPS                           	# pass EPS
+  jal fill_vector                           # epsT = EPS 
 
   lw $a0, k                                 # load k
   lw $a1, _j                                # load j
@@ -223,7 +244,7 @@ fit_i_body:
   jal scale_matrix  
 
   lw $a0, 32($fp)                           # pass dW2
-  lw $a1, B                           		# pass B
+  lw $a1, B                                 # pass B
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal scale_matrix  
@@ -239,6 +260,12 @@ fit_i_body:
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal assign_matrix
+
+  lw $a0, 20($fp)                           # pass rmsW
+  lw $a1, 64($fp)                           # pass epsW
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal add_matrix
 
   lw $a0, 20($fp)                           # pass rmsW
   lw $a1, k                                 # pass k
@@ -305,7 +332,7 @@ fit_i_body:
   jal scale_vector 
 
   lw $a0, 28($fp)                           # pass sdT2
-  lw $a1, B                           		# pass B
+  lw $a1, B                                 # pass B
   lw $a2, k                                 # pass k
   jal scale_vector 
 
@@ -314,17 +341,22 @@ fit_i_body:
   lw $a2, k                                 # pass k
   jal add_vector
 
-  lw $a0, 16($fp)                           # pass rmsW
-  lw $a1, 28($fp)                           # pass sdW2
+  lw $a0, 16($fp)                           # pass rmsT
+  lw $a1, 28($fp)                           # pass sdT2
   lw $a2, k                                 # pass k
   jal assign_vector
 
-  lw $a0, 16($fp)                           # pass rmsW
+  lw $a0, 16($fp)                           # pass rmsT
+  lw $a1, 68($fp)                           # pass epsT
+  lw $a2, k                                 # pass k
+  jal add_vector
+
+  lw $a0, 16($fp)                           # pass rmsT
   lw $a1, k                                 # pass k
   jal sqrt_vector
 
-  lw $a0, 8($fp)                            # pass lrW
-  lw $a1, 16($fp)                           # pass rmsW
+  lw $a0, 8($fp)                            # pass lrT
+  lw $a1, 16($fp)                           # pass rmsT
   lw $a2, k                                 # pass k
   jal div_vector         
 
@@ -376,8 +408,8 @@ fit_e_check:
   bne $t0, $zero, fit_e_body                # continue
   # else                
   move $sp, $fp               
-  lw $fp, 64($sp)               
-  lw $ra, 68($sp)                           # pop the return address
-  addiu $sp, $sp, 72                        # free the stack
+  lw $fp, 72($sp)               
+  lw $ra, 76($sp)                           # pop the return address
+  addiu $sp, $sp, 80                        # free the stack
   jr $ra                                    # return
 

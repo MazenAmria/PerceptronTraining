@@ -2,7 +2,7 @@
 
 Training algorithm for single layer neural network using MIPS assembly language.
 
-The program uses linear algebra (matrices, vectors and thier operations) to implement the training algorithm.
+The program uses linear algebra (matrices, vectors and thier operations) to,implement the training algorithm.
 
 Symbols:
 
@@ -30,7 +30,7 @@ Starting by calculating the weighted sum of the neurons (by linearly transformin
 w_{k \times j} \cdot x_{j} + b_{k} \cdot \left[ -1 \right] = s_{k}
 ```
 
-Then we can apply the chosen activation function to the weighted sum in order to get the output of the transformation. The program allows you to define your own activation function as a function and then reference it with the training model and it'll be used for this stage. Also applying the activation function on the whole vector allowed us to implement both single neuron and multi neuron activation functions. In the perceptron module you'll find two built-in activation functions, one is the hard limitter which is a single neuron activation function that returns 1 when the weighted sum is positive and 0 otherwise, and the other is the maximum weighted sum which is a multi neuron activation function that returns 1 for the neuron with maximum weghted sum and 0 for the other neurons.
+Then we can apply the chosen activation function to the weighted sum in order to get the output of the transformation. The program allows you to define your own activation function as a function and then reference it with the training model and it'll be used for this stage. Also applying the activation function on the whole vector allowed us to,implement both single neuron and multi neuron activation functions. In the perceptron module you'll find two built-in activation functions, one is the hard limitter which is a single neuron activation function that returns 1 when the weighted sum is positive and 0 otherwise, and the other is the maximum weighted sum which is a multi neuron activation function that returns 1 for the neuron with maximum weghted sum and 0 for the other neurons.
 
 ```math
 y_{k} = activation\left( s_{k} \right)
@@ -50,7 +50,7 @@ In this part the weights matrix and the threshlods vector will be modified to re
 - Calculating the needed change in the weights and the needed change in the thresholds.
 
 ```math
-\Delta w_{\hat{k} \hat{j}} \gets \beta \Delta w_{\hat{k} \hat{j}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial w_{\hat{k} \hat{j}}}
+\Delta w_{o,i} \gets \beta \Delta w_{o,i} + \left( 1 - \beta \right)\frac{\partial L_{o}}{\partial w_{o,i}}
 ```
 
 ```math
@@ -58,7 +58,7 @@ In this part the weights matrix and the threshlods vector will be modified to re
 ```
 
 ```math
-\Delta b_{\hat{k}} \gets \beta \Delta b_{\hat{k}} + \left( 1 - \beta \right)\frac{\partial L_{\hat{k}}}{\partial b_{\hat{k}}}
+\Delta b_{o} \gets \beta \Delta b_{o} + \left( 1 - \beta \right)\frac{\partial L_{o}}{\partial b_{o}}
 ```
 
 ```math
@@ -72,19 +72,19 @@ In this part the weights matrix and the threshlods vector will be modified to re
 - Calculating the new learning rates using RMSProp
 
 ```math
-\sigma_{\hat{k} \hat{j}} \gets \beta \sigma_{\hat{k} \hat{j}} - \left( 1 - \beta \right) \Delta w_{\hat{k} \hat{j}}^2
+\sigma_{o,i} \gets \beta \sigma_{o,i} + \left( 1 - \beta \right) \Delta w_{o,i}^2
 ```
 
 ```math
-\sigma_{\hat{k}} \gets \beta \sigma_{\hat{k}} - \left( 1 - \beta \right) \Delta b_{\hat{k}}^2
+\sigma_{o} \gets \beta \sigma_{o} + \left( 1 - \beta \right) \Delta b_{o}^2
 ```
 
 ```math
-\alpha_{\hat{k} \hat{j}} = \frac{\alpha}{\sqrt{\sigma_{\hat{k}}}}
+\alpha_{o,i} = \frac{\alpha}{\sqrt{\sigma_{o} + \epsilon}}
 ```
 
 ```math
-\alpha_{\hat{k}} = \frac{\alpha}{\sqrt{\sigma_{\hat{k} \hat{j}}}}
+\alpha_{o} = \frac{\alpha}{\sqrt{\sigma_{o,i} + \epsilon}}
 ```
 
 - Applying the Changes
