@@ -69,22 +69,22 @@ In this part the weights matrix and the threshlods vector will be modified to re
 \Delta b_{k} \gets \beta \Delta b_{k} - \left( 1 - \beta \right)\delta_{k}
 ```
 
-- Calculating the new learning rates using AdaGrad
+- Calculating the new learning rates using RMSProp
 
 ```math
-\sigma_{\hat{k} \hat{j}}^t = \sqrt{\frac{\sum {\Delta w_{\hat{k} \hat{j}}}^2}{t}}
+\sigma_{\hat{k} \hat{j}} \gets \beta \sigma_{\hat{k} \hat{j}} - \left( 1 - \beta \right) \Delta w_{\hat{k} \hat{j}}^2
 ```
 
 ```math
-\sigma_{\hat{k}}^t = \sqrt{\frac{\sum {\Delta b_{\hat{k}}}^2}{t}}
+\sigma_{\hat{k}} \gets \beta \sigma_{\hat{k}} - \left( 1 - \beta \right) \Delta b_{\hat{k}}^2
 ```
 
 ```math
-\alpha_{\hat{k} \hat{j}} = \frac{\alpha}{\sigma_{\hat{k}}^t}
+\alpha_{\hat{k} \hat{j}} = \frac{\alpha}{\sqrt{\sigma_{\hat{k}}}}
 ```
 
 ```math
-\alpha_{\hat{k}} = \frac{\alpha}{\sigma_{\hat{k} \hat{j}}^t}
+\alpha_{\hat{k}} = \frac{\alpha}{\sqrt{\sigma_{\hat{k} \hat{j}}}}
 ```
 
 - Applying the Changes

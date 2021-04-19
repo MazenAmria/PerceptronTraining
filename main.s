@@ -20,7 +20,7 @@
     T: .word 0
     activation: .word 0
     ONE: .float 1.0
-    BUFSIZ: .word 2048
+    BUFSIZ: .word 8192
     PREDICTION: .asciiz "The prediction of the model\n"
     DESIRED: .asciiz "The desired output\n" 
     ERROR: .asciiz "The error in the prediction\n"
@@ -2278,9 +2278,9 @@ fit:
   # Result:
   # W and T are trained properly to fit the data
 
-  addiu $sp, $sp, -68
-  sw $ra, 64($sp)                           # save $ra
-  sw $fp, 60($sp)               
+  addiu $sp, $sp, -72
+  sw $ra, 68($sp)                           # save $ra
+  sw $fp, 64($sp)               
   move $fp, $sp
 
   lw $a0, k                                 # pass k
@@ -2342,8 +2342,6 @@ fit:
   move $a2, $zero                           # pass 0
   jal fill_vector                           # sdT2 = 0 
 
-  sw $zero, 24($fp)                         # float n = 0
-
   lw $a0, k                                 # load k
   lw $a1, _j                                # load j
   jal allocate_matrix  
@@ -2366,16 +2364,14 @@ fit:
 
   sw $zero, 4($fp)                          # unsigned int e = 0
 
-  addiu $sp, $sp, -8
-
   lw $a0, k                                 # load k
   lw $a1, _j                                # load j
   jal allocate_matrix  
-  sw $v0, -4($fp)                           # save dW2  
+  sw $v0, 24($fp)                           # save dW2  
 
   lw $a0, k                                 # pass k
   jal allocate_vector               
-  sw $v0, -8($fp)                           # save dT2
+  sw $v0, 60($fp)                           # save dT2
 
   j fit_e_check               
 
@@ -2395,12 +2391,7 @@ fit_i_body:
   lw $a0, 8($fp)                            # pass lrT
   lw $a1, k                                 # pass k
   lw $a2, LR                                # pass LR
-  jal fill_vector                           # lrT = LR
-
-  l.s $f0, 24($fp)
-  l.s $f2, ONE
-  add.s $f0, $f0, $f2
-  s.s $f0, 24($fp)                          # n++                             
+  jal fill_vector                           # lrT = LR                           
 
   lw $t0, 0($fp)                            # load _i
   sll $t0, $t0, 2                           # convert to bytes address
@@ -2472,19 +2463,31 @@ fit_i_body:
   lw $a3, _j                                # pass j
   jal add_matrix                
 
-  lw $a0, -4($fp)                           # pass dW2
+  lw $a0, 24($fp)                           # pass dW2
   lw $a1, 40($fp)                           # pass dW
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal assign_matrix
 
-  lw $a0, -4($fp)                           # pass dW2
+  lw $a0, 24($fp)                           # pass dW2
   lw $a1, k                                 # pass k
   lw $a2, _j                                # pass j
   jal square_matrix
 
+  lw $a0, 24($fp)                           # pass dW2
+  lw $a1, 44($fp)                           # pass Bc
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal scale_matrix  
+
+  lw $a0, 32($fp)                           # pass dW2
+  lw $a1, B                           		# pass B
+  lw $a2, k                                 # pass k
+  lw $a3, _j                                # pass j
+  jal scale_matrix  
+
   lw $a0, 32($fp)                           # pass sdW2
-  lw $a1, -4($fp)                           # pass dW2
+  lw $a1, 24($fp)                           # pass dW2
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal add_matrix
@@ -2494,16 +2497,6 @@ fit_i_body:
   lw $a2, k                                 # pass k
   lw $a3, _j                                # pass j
   jal assign_matrix
-
-  l.s $f0, 24($fp)                          # load n
-  l.s $f2, ONE                              # load 1.0
-  div.s $f0, $f2, $f0                       # $f0 = 1.0 / n
-
-  lw $a0, 20($fp)                           # pass rmsW
-  mfc1 $a1, $f0                             # pass 1.0 / n
-  lw $a2, k                                 # pass k
-  lw $a3, _j                                # pass j
-  jal scale_matrix
 
   lw $a0, 20($fp)                           # pass rmsW
   lw $a1, k                                 # pass k
@@ -2555,17 +2548,27 @@ fit_i_body:
   lw $a2, k                                 # pass k
   jal sub_vector                
 
-  lw $a0, -8($fp)                           # pass dT2
+  lw $a0, 60($fp)                           # pass dT2
   lw $a1, 36($fp)                           # pass dT
   lw $a2, k                                 # pass k
   jal assign_vector
 
-  lw $a0, -8($fp)                           # pass dT2
+  lw $a0, 60($fp)                           # pass dT2
   lw $a1, k                                 # pass k
   jal square_vector
 
+  lw $a0, 60($fp)                           # pass dT2
+  lw $a1, 44($fp)                           # pass (1 - B)
+  lw $a2, k                                 # pass k
+  jal scale_vector 
+
   lw $a0, 28($fp)                           # pass sdT2
-  lw $a1, -8($fp)                           # pass dT2
+  lw $a1, B                           		# pass B
+  lw $a2, k                                 # pass k
+  jal scale_vector 
+
+  lw $a0, 28($fp)                           # pass sdT2
+  lw $a1, 60($fp)                           # pass dT2
   lw $a2, k                                 # pass k
   jal add_vector
 
@@ -2573,15 +2576,6 @@ fit_i_body:
   lw $a1, 28($fp)                           # pass sdW2
   lw $a2, k                                 # pass k
   jal assign_vector
-
-  l.s $f0, 24($fp)                          # load n
-  l.s $f2, ONE                              # load 1.0
-  div.s $f0, $f2, $f0                       # $f0 = 1.0 / n
-
-  lw $a0, 16($fp)                           # pass rmsW
-  mfc1 $a1, $f0                             # pass 1.0 / n
-  lw $a2, k                                 # pass k
-  jal scale_vector
 
   lw $a0, 16($fp)                           # pass rmsW
   lw $a1, k                                 # pass k
@@ -2640,9 +2634,9 @@ fit_e_check:
   bne $t0, $zero, fit_e_body                # continue
   # else                
   move $sp, $fp               
-  lw $fp, 60($sp)               
-  lw $ra, 64($sp)                           # pop the return address
-  addiu $sp, $sp, 68                        # free the stack
+  lw $fp, 64($sp)               
+  lw $ra, 68($sp)                           # pop the return address
+  addiu $sp, $sp, 72                        # free the stack
   jr $ra                                    # return
 
 hard_limiter:
