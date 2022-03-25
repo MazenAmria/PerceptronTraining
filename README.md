@@ -6,19 +6,19 @@ The program uses linear algebra (matrices, vectors and thier operations) to,impl
 
 Symbols:
 
-- $`x`$: Input
-- $`w`$: Weight
-- $`b`$: Threshold/Bias
-- $`s`$: Weighted Sum
-- $`y`$: Output
-- $`y_d`$: Desired Output
-- $`\delta`$: Error
-- $`\Delta w`$: Needed Change in Weight
-- $`\Delta b`$: Needed Change in Threshold/Bias
-- $`\beta`$: Momentum
-- $`\alpha`$: Learning Rate
-- $`\sigma`$: Weighted Average of the Squared Change in Weights or Thresholds/Bias
-- $`t`$: number of passed iterations
+- ![Equation](https://math.vercel.app?from=x): Input
+- ![Equation](https://math.vercel.app?from=w): Weight
+- ![Equation](https://math.vercel.app?from=b): Threshold/Bias
+- ![Equation](https://math.vercel.app?from=s): Weighted Sum
+- ![Equation](https://math.vercel.app?from=y): Output
+- ![Equation](https://math.vercel.app?from=y_d): Desired Output
+- ![Equation](https://math.vercel.app?from=%5Cdelta): Error
+- ![Equation](https://math.vercel.app?from=%5CDelta%20w): Needed Change in Weight
+- ![Equation](https://math.vercel.app?from=%5CDelta%20b): Needed Change in Threshold/Bias
+- ![Equation](https://math.vercel.app?from=%5Cbeta): Momentum
+- ![Equation](https://math.vercel.app?from=%5Calpha): Learning Rate
+- ![Equation](https://math.vercel.app?from=%5Csigma): Weighted Average of the Squared Change in Weights or Thresholds/Bias
+- ![Equation](https://math.vercel.app?from=t): number of passed iterations
 
 ## Transform
 
@@ -26,15 +26,11 @@ First we have the transform algorithm, which is used to transform the input vect
 
 Starting by calculating the weighted sum of the neurons (by linearly transforming the feature vector with the weigths matrix and then subtracting the threshlods).
 
-```math
-w_{k \times j} \cdot x_{j} + b_{k} \cdot \left[ -1 \right] = s_{k}
-```
+![Equation](https://math.vercel.app?from=w_%7Bk%20%5Ctimes%20j%7D%20%5Ccdot%20x_%7Bj%7D%20%2B%20b_%7Bk%7D%20%5Ccdot%20%5Cleft%5B%20-1%20%5Cright%5D%20%3D%20s_%7Bk%7D)
 
 Then we can apply the chosen activation function to the weighted sum in order to get the output of the transformation. The program allows you to define your own activation function as a function and then reference it with the training model and it'll be used for this stage. Also applying the activation function on the whole vector allowed us to,implement both single neuron and multi neuron activation functions. In the perceptron module you'll find two built-in activation functions, one is the hard limitter which is a single neuron activation function that returns 1 when the weighted sum is positive and 0 otherwise, and the other is the maximum weighted sum which is a multi neuron activation function that returns 1 for the neuron with maximum weghted sum and 0 for the other neurons.
 
-```math
-y_{k} = activation\left( s_{k} \right)
-```
+![Equation](https://math.vercel.app?from=y_%7Bk%7D%20%3D%20activation%5Cleft%28%20s_%7Bk%7D%20%5Cright%29)
 
 ## Fit
 
@@ -43,59 +39,35 @@ In this part the weights matrix and the threshlods vector will be modified to re
 - Transforms the feature vector using the existing model.
 - Calculating the error between the desired output and the given output.
 
-```math
-\delta_{k} = y_{k} - {y_d}_{k}
-```
+![Equation](https://math.vercel.app?from=%5Cdelta_%7Bk%7D%20%3D%20y_%7Bk%7D%20-%20%7By_d%7D_%7Bk%7D)
 
 - Calculating the needed change in the weights and the needed change in the thresholds.
 
-```math
-\Delta w_{o,i} \gets \beta \Delta w_{o,i} + \left( 1 - \beta \right)\frac{\partial L_{o}}{\partial w_{o,i}}
-```
+![Equation](https://math.vercel.app?from=%5CDelta%20w_%7Bo%2Ci%7D%20%5Cgets%20%5Cbeta%20%5CDelta%20w_%7Bo%2Ci%7D%20%2B%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%5Cfrac%7B%5Cpartial%20L_%7Bo%7D%7D%7B%5Cpartial%20w_%7Bo%2Ci%7D%7D)
 
-```math
-\Delta w_{k \times j} \gets \beta \Delta w_{k \times j} + \left( 1 - \beta \right)\delta_{k} \cdot x_{j}^T
-```
+![Equation](https://math.vercel.app?from=%5CDelta%20w_%7Bk%20%5Ctimes%20j%7D%20%5Cgets%20%5Cbeta%20%5CDelta%20w_%7Bk%20%5Ctimes%20j%7D%20%2B%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%5Cdelta_%7Bk%7D%20%5Ccdot%20x_%7Bj%7D%5ET)
 
-```math
-\Delta b_{o} \gets \beta \Delta b_{o} + \left( 1 - \beta \right)\frac{\partial L_{o}}{\partial b_{o}}
-```
+![Equation](https://math.vercel.app?from=%5CDelta%20b_%7Bo%7D%20%5Cgets%20%5Cbeta%20%5CDelta%20b_%7Bo%7D%20%2B%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%5Cfrac%7B%5Cpartial%20L_%7Bo%7D%7D%7B%5Cpartial%20b_%7Bo%7D%7D)
 
-```math
-\Delta b_{k} \gets \beta \Delta b_{k} + \left( 1 - \beta \right)\delta_{k} \cdot \left[ -1 \right] ^T
-```
+![Equation](https://math.vercel.app?from=%5CDelta%20b_%7Bk%7D%20%5Cgets%20%5Cbeta%20%5CDelta%20b_%7Bk%7D%20%2B%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%5Cdelta_%7Bk%7D%20%5Ccdot%20%5Cleft%5B%20-1%20%5Cright%5D%20%5ET)
 
-```math
-\Delta b_{k} \gets \beta \Delta b_{k} - \left( 1 - \beta \right)\delta_{k}
-```
+![Equation](https://math.vercel.app?from=%5CDelta%20b_%7Bk%7D%20%5Cgets%20%5Cbeta%20%5CDelta%20b_%7Bk%7D%20-%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%5Cdelta_%7Bk%7D)
 
 - Calculating the new learning rates using RMSProp
 
-```math
-\sigma_{o,i} \gets \beta \sigma_{o,i} + \left( 1 - \beta \right) \Delta w_{o,i}^2
-```
+![Equation](https://math.vercel.app?from=%5Csigma_%7Bo%2Ci%7D%20%5Cgets%20%5Cbeta%20%5Csigma_%7Bo%2Ci%7D%20%2B%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%20%5CDelta%20w_%7Bo%2Ci%7D%5E2)
 
-```math
-\sigma_{o} \gets \beta \sigma_{o} + \left( 1 - \beta \right) \Delta b_{o}^2
-```
+![Equation](https://math.vercel.app?from=%5Csigma_%7Bo%7D%20%5Cgets%20%5Cbeta%20%5Csigma_%7Bo%7D%20%2B%20%5Cleft%28%201%20-%20%5Cbeta%20%5Cright%29%20%5CDelta%20b_%7Bo%7D%5E2)
 
-```math
-\alpha_{o,i} = \frac{\alpha}{\sqrt{\sigma_{o} + \epsilon}}
-```
+![Equation](https://math.vercel.app?from=%5Calpha_%7Bo%2Ci%7D%20%3D%20%5Cfrac%7B%5Calpha%7D%7B%5Csqrt%7B%5Csigma_%7Bo%7D%20%2B%20%5Cepsilon%7D%7D)
 
-```math
-\alpha_{o} = \frac{\alpha}{\sqrt{\sigma_{o,i} + \epsilon}}
-```
+![Equation](https://math.vercel.app?from=%5Calpha_%7Bo%7D%20%3D%20%5Cfrac%7B%5Calpha%7D%7B%5Csqrt%7B%5Csigma_%7Bo%2Ci%7D%20%2B%20%5Cepsilon%7D%7D)
 
 - Applying the Changes
 
-```math
-w_{k \times j} \gets w_{k \times j} - \alpha_{k \times j} \Delta w_{k \times j}
-```
+![Equation](https://math.vercel.app?from=w_%7Bk%20%5Ctimes%20j%7D%20%5Cgets%20w_%7Bk%20%5Ctimes%20j%7D%20-%20%5Calpha_%7Bk%20%5Ctimes%20j%7D%20%5CDelta%20w_%7Bk%20%5Ctimes%20j%7D)
 
-```math
-b_{k} \gets b_{k} - \alpha_{k} \Delta b_{k}
-```
+![Equation](https://math.vercel.app?from=b_%7Bk%7D%20%5Cgets%20b_%7Bk%7D%20-%20%5Calpha_%7Bk%7D%20%5CDelta%20b_%7Bk%7D)
 
 The algorithm iterates over the entire dataset in one epoch, if more than one epoch are given it will re-iterate over the entire dataset as many epochs as the are.
 
